@@ -1,0 +1,1242 @@
+import { useEffect, useMemo, useState } from 'react'
+import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import {
+  BadgeDollarSign,
+  Calculator,
+  Download,
+  FileText,
+  Plus,
+  ReceiptText,
+  RotateCcw,
+  Sparkles,
+  Trash2,
+} from 'lucide-react'
+import './App.css'
+
+type ToolType = 'invoice' | 'quote' | 'receipt'
+
+type LineItem = {
+  id: number
+  description: string
+  quantity: number
+  rate: number
+}
+
+type BusinessDocument = {
+  documentNumber: string
+  issueDate: string
+  dueDate: string
+  businessName: string
+  businessEmail: string
+  businessAddress: string
+  clientName: string
+  clientEmail: string
+  clientAddress: string
+  notes: string
+  taxRate: number
+  discount: number
+}
+
+type SavedDraft = {
+  document: BusinessDocument
+  items: LineItem[]
+}
+
+const today = new Date()
+const dueDate = new Date(today)
+dueDate.setDate(today.getDate() + 14)
+
+const formatDate = (date: Date) => date.toISOString().slice(0, 10)
+
+const currency = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+})
+
+const displayDate = (value: string) =>
+  new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(`${value}T00:00:00`))
+
+const starterDocument: BusinessDocument = {
+  documentNumber: 'INV-0001',
+  issueDate: formatDate(today),
+  dueDate: formatDate(dueDate),
+  businessName: 'Northstar Studio',
+  businessEmail: 'billing@northstar.example',
+  businessAddress: '128 Market Street\nSan Francisco, CA',
+  clientName: 'Acme Retail Group',
+  clientEmail: 'accounts@acme.example',
+  clientAddress: '44 Commerce Avenue\nAustin, TX',
+  notes: 'Thank you for your business. Payment is due by the date above.',
+  taxRate: 8,
+  discount: 50,
+}
+
+const starterItems: LineItem[] = [
+  { id: 1, description: 'Website landing page design', quantity: 1, rate: 950 },
+  { id: 2, description: 'Invoice automation setup', quantity: 3, rate: 120 },
+]
+
+const routeTitles: Record<string, string> = {
+  '/': 'LedgerLaunch Small Business Tools',
+  '/contact': 'Contact LedgerLaunch',
+  '/freelance-rate-calculator': 'Freelance Rate Calculator',
+  '/invoice-generator': 'Free Invoice Generator',
+  '/pricing': 'LedgerLaunch Pricing',
+  '/privacy': 'LedgerLaunch Privacy Policy',
+  '/profit-margin-calculator': 'Profit Margin Calculator',
+  '/quote-generator': 'Free Quote Generator',
+  '/receipt-maker': 'Receipt Maker',
+  '/terms': 'LedgerLaunch Terms',
+}
+
+const routeDescriptions: Record<string, string> = {
+  '/': 'Free small business tools for invoices, quotes, receipts, profit margins, freelance rates, and PDF exports.',
+  '/contact': 'Contact LedgerLaunch for support and partnership inquiries.',
+  '/freelance-rate-calculator':
+    'Estimate hourly, daily, monthly, and annual freelance rates from income goals, expenses, taxes, and billable hours.',
+  '/invoice-generator':
+    'Create a free invoice with line items, discounts, tax, autosave, live totals, and PDF export.',
+  '/pricing':
+    'Review LedgerLaunch paid export, Pro, and Business pricing options for small business tools.',
+  '/privacy':
+    'Read how LedgerLaunch handles local drafts, analytics, ads, and payment disclosures.',
+  '/profit-margin-calculator':
+    'Calculate profit, margin, and markup from product cost, selling price, and fees.',
+  '/quote-generator':
+    'Create a free quote or estimate with line items, discounts, tax, autosave, live totals, and PDF export.',
+  '/receipt-maker':
+    'Create a free receipt with line items, payment details, live totals, and PDF export.',
+  '/terms':
+    'Read the LedgerLaunch terms for using small business productivity tools.',
+}
+
+const siteOrigin =
+  import.meta.env.VITE_SITE_URL?.replace(/\/$/, '') ??
+  'https://your-domain.example'
+
+const trackEvent = (name: string, data: Record<string, string | number>) => {
+  console.info('[analytics]', {
+    data,
+    name,
+    timestamp: new Date().toISOString(),
+  })
+}
+
+const getToolCopy = (tool: ToolType) => {
+  if (tool === 'quote') {
+    return {
+      action: 'Generate clean quote PDF',
+      documentLabel: 'Quote',
+      documentNumber: 'Quote number',
+      dueLabel: 'Expiry date',
+      heading: 'Free quote generator for service businesses.',
+      notes:
+        'This quote is valid until the expiry date above. Pricing may change after approval.',
+      numberPrefix: 'QTE',
+      totalLabel: 'Estimated total',
+    }
+  }
+
+  if (tool === 'receipt') {
+    return {
+      action: 'Generate clean receipt PDF',
+      documentLabel: 'Receipt',
+      documentNumber: 'Receipt number',
+      dueLabel: 'Paid date',
+      heading: 'Free receipt maker for paid invoices.',
+      notes: 'Payment received. Keep this receipt for your records.',
+      numberPrefix: 'RCT',
+      totalLabel: 'Amount paid',
+    }
+  }
+
+  return {
+    action: 'Generate clean invoice PDF',
+    documentLabel: 'Invoice',
+    documentNumber: 'Invoice number',
+    dueLabel: 'Due date',
+    heading: 'Free invoice generator for small businesses.',
+    notes: 'Thank you for your business. Payment is due by the date above.',
+    numberPrefix: 'INV',
+    totalLabel: 'Total due',
+  }
+}
+
+const getDraftKey = (tool: ToolType) => `ledgerlaunch.${tool}.draft.v2`
+
+const getInitialDraft = (tool: ToolType): SavedDraft => {
+  const copy = getToolCopy(tool)
+  const fallback = {
+    document: {
+      ...starterDocument,
+      documentNumber: `${copy.numberPrefix}-0001`,
+      notes: copy.notes,
+    },
+    items: starterItems,
+  }
+
+  if (typeof window === 'undefined') {
+    return fallback
+  }
+
+  try {
+    const saved = window.localStorage.getItem(getDraftKey(tool))
+    if (!saved) {
+      return fallback
+    }
+
+    const parsed = JSON.parse(saved) as SavedDraft
+    return {
+      document: { ...fallback.document, ...parsed.document },
+      items: parsed.items?.length ? parsed.items : starterItems,
+    }
+  } catch {
+    return fallback
+  }
+}
+
+const buildPdf = async (
+  tool: ToolType,
+  document: BusinessDocument,
+  items: LineItem[],
+  totals: {
+    discount: number
+    subtotal: number
+    tax: number
+    total: number
+  },
+) => {
+  const { jsPDF } = await import('jspdf')
+  const copy = getToolCopy(tool)
+  const pdf = new jsPDF({ unit: 'pt', format: 'letter' })
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const margin = 48
+  let y = 56
+
+  pdf.setTextColor('#171a1f')
+  pdf.setFont('helvetica', 'bold')
+  pdf.setFontSize(28)
+  pdf.text(copy.documentLabel, margin, y)
+  pdf.setFontSize(16)
+  pdf.text(document.businessName || 'Your business', pageWidth - margin, y, {
+    align: 'right',
+  })
+
+  y += 30
+  pdf.setDrawColor('#171a1f')
+  pdf.setLineWidth(1.5)
+  pdf.line(margin, y, pageWidth - margin, y)
+
+  y += 32
+  pdf.setFontSize(18)
+  pdf.text(document.documentNumber, margin, y)
+  pdf.setFont('helvetica', 'normal')
+  pdf.setFontSize(10)
+  pdf.text(`Issued: ${displayDate(document.issueDate)}`, margin, y + 22)
+  pdf.text(`${copy.dueLabel}: ${displayDate(document.dueDate)}`, margin, y + 38)
+
+  pdf.setFont('helvetica', 'bold')
+  pdf.text('From', margin, y + 76)
+  pdf.text('Bill to', pageWidth / 2, y + 76)
+  pdf.setFont('helvetica', 'normal')
+  pdf.text(
+    [document.businessName, document.businessEmail, document.businessAddress]
+      .filter(Boolean)
+      .join('\n'),
+    margin,
+    y + 94,
+  )
+  pdf.text(
+    [document.clientName, document.clientEmail, document.clientAddress]
+      .filter(Boolean)
+      .join('\n'),
+    pageWidth / 2,
+    y + 94,
+  )
+
+  y += 166
+  pdf.setFont('helvetica', 'bold')
+  pdf.text('Description', margin, y)
+  pdf.text('Qty', pageWidth - 220, y, { align: 'right' })
+  pdf.text('Rate', pageWidth - 140, y, { align: 'right' })
+  pdf.text('Amount', pageWidth - margin, y, { align: 'right' })
+  pdf.setLineWidth(0.5)
+  pdf.line(margin, y + 10, pageWidth - margin, y + 10)
+
+  pdf.setFont('helvetica', 'normal')
+  items.forEach((item) => {
+    y += 30
+    pdf.text(item.description || 'Service', margin, y)
+    pdf.text(String(item.quantity), pageWidth - 220, y, { align: 'right' })
+    pdf.text(currency.format(item.rate), pageWidth - 140, y, { align: 'right' })
+    pdf.text(currency.format(item.quantity * item.rate), pageWidth - margin, y, {
+      align: 'right',
+    })
+  })
+
+  y += 34
+  const totalX = pageWidth - 220
+  const valueX = pageWidth - margin
+
+  ;[
+    ['Subtotal', currency.format(totals.subtotal)],
+    ['Discount', `-${currency.format(totals.discount)}`],
+    ['Tax', currency.format(totals.tax)],
+  ].forEach(([label, value]) => {
+    pdf.text(label, totalX, y)
+    pdf.text(value, valueX, y, { align: 'right' })
+    y += 22
+  })
+
+  pdf.setFont('helvetica', 'bold')
+  pdf.setFontSize(14)
+  pdf.text(copy.totalLabel, valueX, y + 8, { align: 'right' })
+  pdf.setFontSize(18)
+  pdf.text(currency.format(totals.total), valueX, y + 34, { align: 'right' })
+
+  pdf.setFont('helvetica', 'normal')
+  pdf.setFontSize(10)
+  pdf.setTextColor('#6f716b')
+  pdf.text(document.notes, margin, y + 82, {
+    maxWidth: pageWidth - margin * 2,
+  })
+
+  pdf.save(`${document.documentNumber || copy.documentLabel}.pdf`)
+}
+
+function App() {
+  return (
+    <main className="app-shell">
+      <Header />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/invoice-generator" element={<DocumentTool tool="invoice" />} />
+        <Route path="/quote-generator" element={<DocumentTool tool="quote" />} />
+        <Route path="/receipt-maker" element={<DocumentTool tool="receipt" />} />
+        <Route path="/profit-margin-calculator" element={<ProfitMarginCalculator />} />
+        <Route
+          path="/freelance-rate-calculator"
+          element={<FreelanceRateCalculator />}
+        />
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/privacy" element={<PolicyPage type="privacy" />} />
+        <Route path="/terms" element={<PolicyPage type="terms" />} />
+        <Route path="/contact" element={<ContactPage />} />
+      </Routes>
+    </main>
+  )
+}
+
+function Header() {
+  const location = useLocation()
+
+  useEffect(() => {
+    const title = routeTitles[location.pathname] ?? routeTitles['/']
+    const description =
+      routeDescriptions[location.pathname] ?? routeDescriptions['/']
+    const canonical = `${siteOrigin}${location.pathname}`
+
+    globalThis.document.title = title
+
+    const setMeta = (selector: string, attr: string, value: string) => {
+      const element = globalThis.document.querySelector(selector)
+      element?.setAttribute(attr, value)
+    }
+
+    setMeta('meta[name="description"]', 'content', description)
+    setMeta('meta[property="og:title"]', 'content', title)
+    setMeta('meta[property="og:description"]', 'content', description)
+    setMeta('meta[property="og:url"]', 'content', canonical)
+    setMeta('meta[name="twitter:title"]', 'content', title)
+    setMeta('meta[name="twitter:description"]', 'content', description)
+    setMeta('link[rel="canonical"]', 'href', canonical)
+
+    trackEvent('page_view', { path: location.pathname })
+  }, [location.pathname])
+
+  return (
+    <header className="topbar">
+      <Link className="brand" to="/" aria-label="LedgerLaunch home">
+        <span className="brand-mark">LL</span>
+        <span>LedgerLaunch</span>
+      </Link>
+      <nav aria-label="Primary navigation">
+        <NavLink to="/invoice-generator">Invoice</NavLink>
+        <NavLink to="/quote-generator">Quote</NavLink>
+        <NavLink to="/receipt-maker">Receipt</NavLink>
+        <NavLink to="/profit-margin-calculator">Margin</NavLink>
+        <NavLink to="/pricing">Pricing</NavLink>
+      </nav>
+      <Link className="topbar-action" to="/pricing">
+        <Sparkles size={16} />
+        Pro
+      </Link>
+    </header>
+  )
+}
+
+function HomePage() {
+  return (
+    <>
+      <section className="hero" id="top">
+        <div className="hero-copy">
+          <h1>Small business tools built to earn from day one.</h1>
+          <p>
+            Generate invoices, quotes, receipts, and business calculators from a
+            shared platform with SEO pages, ad slots, paid PDF exports, and
+            affiliate-ready surfaces.
+          </p>
+          <div className="hero-actions">
+            <Link className="primary-link" to="/invoice-generator">
+              <FileText size={18} />
+              Open invoice generator
+            </Link>
+            <Link className="secondary-link" to="/pricing">
+              View monetization
+            </Link>
+          </div>
+        </div>
+        <RevenuePanel />
+      </section>
+      <SeoSection />
+      <ToolPortfolio />
+      <LegalTeaser />
+    </>
+  )
+}
+
+function RevenuePanel() {
+  return (
+    <aside className="revenue-panel" aria-label="Revenue model">
+      <div>
+        <span>Revenue slots</span>
+        <strong>Ads + exports + Pro</strong>
+      </div>
+      <div className="ad-slot">AdSense-ready placement</div>
+      <button
+        className="revenue-row revenue-button"
+        type="button"
+        onClick={() => trackEvent('paid_export_click', { source: 'hero' })}
+      >
+        <BadgeDollarSign size={18} />
+        <span>Paid clean PDF export</span>
+      </button>
+      <button
+        className="revenue-row revenue-button"
+        type="button"
+        onClick={() => trackEvent('affiliate_click', { partner: 'accounting' })}
+      >
+        <ReceiptText size={18} />
+        <span>Accounting affiliate offer</span>
+      </button>
+    </aside>
+  )
+}
+
+function DocumentTool({ tool }: { tool: ToolType }) {
+  const initialDraft = getInitialDraft(tool)
+  const copy = getToolCopy(tool)
+  const [document, setDocument] = useState<BusinessDocument>(
+    initialDraft.document,
+  )
+  const [items, setItems] = useState<LineItem[]>(initialDraft.items)
+
+  useEffect(() => {
+    const draft: SavedDraft = { document, items }
+    window.localStorage.setItem(getDraftKey(tool), JSON.stringify(draft))
+  }, [document, items, tool])
+
+  const totals = useMemo(() => {
+    const subtotal = items.reduce(
+      (sum, item) => sum + item.quantity * item.rate,
+      0,
+    )
+    const discount = Math.min(document.discount, subtotal)
+    const taxable = Math.max(subtotal - discount, 0)
+    const tax = taxable * (document.taxRate / 100)
+    const total = taxable + tax
+
+    return { subtotal, discount, tax, total }
+  }, [document.discount, document.taxRate, items])
+
+  const updateDocument = <K extends keyof BusinessDocument>(
+    key: K,
+    value: BusinessDocument[K],
+  ) => {
+    setDocument((current) => ({ ...current, [key]: value }))
+  }
+
+  const updateItem = <K extends keyof LineItem>(
+    id: number,
+    key: K,
+    value: LineItem[K],
+  ) => {
+    setItems((current) =>
+      current.map((item) => (item.id === id ? { ...item, [key]: value } : item)),
+    )
+  }
+
+  const addItem = () => {
+    setItems((current) => [
+      ...current,
+      {
+        id: Date.now(),
+        description: tool === 'quote' ? 'Proposed service' : 'New service',
+        quantity: 1,
+        rate: 100,
+      },
+    ])
+    trackEvent('line_item_add', { tool })
+  }
+
+  const removeItem = (id: number) => {
+    setItems((current) =>
+      current.length === 1 ? current : current.filter((item) => item.id !== id),
+    )
+    trackEvent('line_item_remove', { tool })
+  }
+
+  const resetDraft = () => {
+    setDocument({
+      ...starterDocument,
+      documentNumber: `${copy.numberPrefix}-0001`,
+      notes: copy.notes,
+    })
+    setItems(starterItems)
+    trackEvent('draft_reset', { tool })
+  }
+
+  const exportPdf = async () => {
+    await buildPdf(tool, document, items, totals)
+    trackEvent('pdf_export', {
+      amount: Math.round(totals.total),
+      tool,
+    })
+  }
+
+  return (
+    <>
+      <section className="hero tool-hero">
+        <div className="hero-copy">
+          <h1>{copy.heading}</h1>
+          <p>
+            Fill in the details, autosave the draft, and generate a clean PDF.
+            Free users can export now; Pro payments will remove future
+            watermarks, store history, and unlock templates.
+          </p>
+        </div>
+        <RevenuePanel />
+      </section>
+
+      <section className="tool-layout" id="tool">
+        <form className="invoice-form">
+          <ToolSwitch />
+          <div className="section-heading">
+            <div>
+              <span>{copy.documentLabel} details</span>
+              <small>Draft autosaves in this browser</small>
+            </div>
+            <div className="button-row">
+              <button type="button" onClick={resetDraft}>
+                <RotateCcw size={16} />
+                Reset
+              </button>
+              <button type="button" onClick={exportPdf}>
+                <Download size={16} />
+                PDF
+              </button>
+            </div>
+          </div>
+
+          <div className="field-grid three">
+            <label>
+              {copy.documentNumber}
+              <input
+                value={document.documentNumber}
+                onChange={(event) =>
+                  updateDocument('documentNumber', event.target.value)
+                }
+              />
+            </label>
+            <label>
+              Issue date
+              <input
+                type="date"
+                value={document.issueDate}
+                onChange={(event) =>
+                  updateDocument('issueDate', event.target.value)
+                }
+              />
+            </label>
+            <label>
+              {copy.dueLabel}
+              <input
+                type="date"
+                value={document.dueDate}
+                onChange={(event) =>
+                  updateDocument('dueDate', event.target.value)
+                }
+              />
+            </label>
+          </div>
+
+          <div className="field-grid">
+            <PartyFields
+              legend="Your business"
+              nameLabel="Business name"
+              nameValue={document.businessName}
+              emailValue={document.businessEmail}
+              addressValue={document.businessAddress}
+              onAddressChange={(value) => updateDocument('businessAddress', value)}
+              onEmailChange={(value) => updateDocument('businessEmail', value)}
+              onNameChange={(value) => updateDocument('businessName', value)}
+            />
+            <PartyFields
+              legend="Client"
+              nameLabel="Client name"
+              nameValue={document.clientName}
+              emailValue={document.clientEmail}
+              addressValue={document.clientAddress}
+              onAddressChange={(value) => updateDocument('clientAddress', value)}
+              onEmailChange={(value) => updateDocument('clientEmail', value)}
+              onNameChange={(value) => updateDocument('clientName', value)}
+            />
+          </div>
+
+          <div className="line-items">
+            <div className="section-heading compact">
+              <span>Line items</span>
+              <button type="button" onClick={addItem}>
+                <Plus size={16} />
+                Add item
+              </button>
+            </div>
+
+            {items.map((item) => (
+              <div className="line-item" key={item.id}>
+                <label className="description">
+                  Description
+                  <input
+                    value={item.description}
+                    onChange={(event) =>
+                      updateItem(item.id, 'description', event.target.value)
+                    }
+                  />
+                </label>
+                <label>
+                  Qty
+                  <input
+                    min="0"
+                    type="number"
+                    value={item.quantity}
+                    onChange={(event) =>
+                      updateItem(
+                        item.id,
+                        'quantity',
+                        Number(event.target.value),
+                      )
+                    }
+                  />
+                </label>
+                <label>
+                  Rate
+                  <input
+                    min="0"
+                    type="number"
+                    value={item.rate}
+                    onChange={(event) =>
+                      updateItem(item.id, 'rate', Number(event.target.value))
+                    }
+                  />
+                </label>
+                <button
+                  className="icon-button"
+                  type="button"
+                  aria-label="Remove line item"
+                  onClick={() => removeItem(item.id)}
+                >
+                  <Trash2 size={17} />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="field-grid three">
+            <label>
+              Discount
+              <input
+                min="0"
+                type="number"
+                value={document.discount}
+                onChange={(event) =>
+                  updateDocument('discount', Number(event.target.value))
+                }
+              />
+            </label>
+            <label>
+              Tax rate %
+              <input
+                min="0"
+                type="number"
+                value={document.taxRate}
+                onChange={(event) =>
+                  updateDocument('taxRate', Number(event.target.value))
+                }
+              />
+            </label>
+            <label>
+              Notes
+              <textarea
+                className="notes-input"
+                value={document.notes}
+                onChange={(event) => updateDocument('notes', event.target.value)}
+              />
+            </label>
+          </div>
+
+          <div className="monetization-strip">
+            <div className="ad-unit">Responsive ad slot</div>
+            <Link to="/pricing">Remove watermark with Pro export</Link>
+          </div>
+        </form>
+
+        <aside className="invoice-preview" aria-label="Document preview">
+          <DocumentPreview
+            copy={copy}
+            document={document}
+            items={items}
+            totals={totals}
+          />
+        </aside>
+      </section>
+      <SeoSection />
+    </>
+  )
+}
+
+function ToolSwitch() {
+  return (
+    <div className="tool-tabs" aria-label="Document type">
+      <NavLink to="/invoice-generator">Invoice generator</NavLink>
+      <NavLink to="/quote-generator">Quote generator</NavLink>
+      <NavLink to="/receipt-maker">Receipt maker</NavLink>
+    </div>
+  )
+}
+
+function PartyFields({
+  addressValue,
+  emailValue,
+  legend,
+  nameLabel,
+  nameValue,
+  onAddressChange,
+  onEmailChange,
+  onNameChange,
+}: {
+  addressValue: string
+  emailValue: string
+  legend: string
+  nameLabel: string
+  nameValue: string
+  onAddressChange: (value: string) => void
+  onEmailChange: (value: string) => void
+  onNameChange: (value: string) => void
+}) {
+  return (
+    <fieldset>
+      <legend>{legend}</legend>
+      <label>
+        {nameLabel}
+        <input value={nameValue} onChange={(event) => onNameChange(event.target.value)} />
+      </label>
+      <label>
+        Email
+        <input
+          type="email"
+          value={emailValue}
+          onChange={(event) => onEmailChange(event.target.value)}
+        />
+      </label>
+      <label>
+        Address
+        <textarea
+          value={addressValue}
+          onChange={(event) => onAddressChange(event.target.value)}
+        />
+      </label>
+    </fieldset>
+  )
+}
+
+function DocumentPreview({
+  copy,
+  document,
+  items,
+  totals,
+}: {
+  copy: ReturnType<typeof getToolCopy>
+  document: BusinessDocument
+  items: LineItem[]
+  totals: {
+    discount: number
+    subtotal: number
+    tax: number
+    total: number
+  }
+}) {
+  return (
+    <div className="invoice-paper">
+      <div className="invoice-head">
+        <div>
+          <span>{copy.documentLabel}</span>
+          <h2>{document.documentNumber}</h2>
+        </div>
+        <strong>{document.businessName}</strong>
+      </div>
+
+      <div className="invoice-meta">
+        <div>
+          <span>Issue date</span>
+          <strong>{displayDate(document.issueDate)}</strong>
+        </div>
+        <div>
+          <span>{copy.dueLabel}</span>
+          <strong>{displayDate(document.dueDate)}</strong>
+        </div>
+      </div>
+
+      <div className="invoice-parties">
+        <div>
+          <span>From</span>
+          <strong>{document.businessName}</strong>
+          <p>{document.businessEmail}</p>
+          <p>{document.businessAddress}</p>
+        </div>
+        <div>
+          <span>Bill to</span>
+          <strong>{document.clientName}</strong>
+          <p>{document.clientEmail}</p>
+          <p>{document.clientAddress}</p>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Rate</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item) => (
+            <tr key={item.id}>
+              <td>{item.description}</td>
+              <td>{item.quantity}</td>
+              <td>{currency.format(item.rate)}</td>
+              <td>{currency.format(item.quantity * item.rate)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="totals">
+        <div>
+          <span>Subtotal</span>
+          <strong>{currency.format(totals.subtotal)}</strong>
+        </div>
+        <div>
+          <span>Discount</span>
+          <strong>-{currency.format(totals.discount)}</strong>
+        </div>
+        <div>
+          <span>Tax</span>
+          <strong>{currency.format(totals.tax)}</strong>
+        </div>
+        <div className="grand-total">
+          <span>{copy.totalLabel}</span>
+          <strong>{currency.format(totals.total)}</strong>
+        </div>
+      </div>
+
+      <p className="invoice-notes">{document.notes}</p>
+    </div>
+  )
+}
+
+function ProfitMarginCalculator() {
+  const [cost, setCost] = useState(25)
+  const [price, setPrice] = useState(60)
+  const [fees, setFees] = useState(3)
+
+  const result = useMemo(() => {
+    const profit = price - cost - fees
+    const margin = price > 0 ? (profit / price) * 100 : 0
+    const markup = cost > 0 ? (profit / cost) * 100 : 0
+    return { margin, markup, profit }
+  }, [cost, fees, price])
+
+  return (
+    <CalculatorPage
+      description="Check product or service profitability after costs and fees."
+      title="Profit margin calculator"
+    >
+      <CalculatorFields>
+        <NumberField label="Cost" value={cost} onChange={setCost} />
+        <NumberField label="Selling price" value={price} onChange={setPrice} />
+        <NumberField label="Fees" value={fees} onChange={setFees} />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['Profit', currency.format(result.profit)],
+          ['Margin', `${result.margin.toFixed(1)}%`],
+          ['Markup', `${result.markup.toFixed(1)}%`],
+        ]}
+      />
+    </CalculatorPage>
+  )
+}
+
+function FreelanceRateCalculator() {
+  const [targetIncome, setTargetIncome] = useState(80000)
+  const [expenses, setExpenses] = useState(12000)
+  const [taxRate, setTaxRate] = useState(25)
+  const [billableHours, setBillableHours] = useState(1200)
+
+  const result = useMemo(() => {
+    const needed = (targetIncome + expenses) / (1 - taxRate / 100)
+    const hourly = billableHours > 0 ? needed / billableHours : 0
+    return {
+      annual: needed,
+      daily: hourly * 8,
+      hourly,
+      monthly: needed / 12,
+    }
+  }, [billableHours, expenses, targetIncome, taxRate])
+
+  return (
+    <CalculatorPage
+      description="Estimate what to charge to hit an annual income goal."
+      title="Freelance rate calculator"
+    >
+      <CalculatorFields>
+        <NumberField label="Target income" value={targetIncome} onChange={setTargetIncome} />
+        <NumberField label="Annual expenses" value={expenses} onChange={setExpenses} />
+        <NumberField label="Tax rate %" value={taxRate} onChange={setTaxRate} />
+        <NumberField
+          label="Billable hours/year"
+          value={billableHours}
+          onChange={setBillableHours}
+        />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['Hourly rate', currency.format(result.hourly)],
+          ['Day rate', currency.format(result.daily)],
+          ['Monthly target', currency.format(result.monthly)],
+          ['Annual gross need', currency.format(result.annual)],
+        ]}
+      />
+    </CalculatorPage>
+  )
+}
+
+function CalculatorPage({
+  children,
+  description,
+  title,
+}: {
+  children: React.ReactNode
+  description: string
+  title: string
+}) {
+  return (
+    <>
+      <section className="hero calculator-hero">
+        <div className="hero-copy">
+          <h1>{title}</h1>
+          <p>{description}</p>
+        </div>
+        <RevenuePanel />
+      </section>
+      <section className="calculator-panel">{children}</section>
+      <SeoSection />
+    </>
+  )
+}
+
+function CalculatorFields({ children }: { children: React.ReactNode }) {
+  return <div className="calculator-fields">{children}</div>
+}
+
+function NumberField({
+  label,
+  onChange,
+  value,
+}: {
+  label: string
+  onChange: (value: number) => void
+  value: number
+}) {
+  return (
+    <label>
+      {label}
+      <input
+        min="0"
+        type="number"
+        value={value}
+        onChange={(event) => onChange(Number(event.target.value))}
+      />
+    </label>
+  )
+}
+
+function ResultGrid({ results }: { results: Array<[string, string]> }) {
+  return (
+    <div className="result-grid">
+      {results.map(([label, value]) => (
+        <article key={label}>
+          <span>{label}</span>
+          <strong>{value}</strong>
+        </article>
+      ))}
+    </div>
+  )
+}
+
+function PricingPage() {
+  return (
+    <section className="pricing-page">
+      <div>
+        <h1>Simple pricing for the first revenue tests.</h1>
+        <p>
+          These are checkout-ready product tiers. PayPal and Solana USDC buttons
+          are intentionally configuration-gated until real merchant details are
+          added.
+        </p>
+      </div>
+      <div className="pricing-grid">
+        <PricingCard
+          description="Clean PDF for one invoice, quote, or receipt."
+          name="Single export"
+          price="$3"
+        />
+        <PricingCard
+          description="No watermark, saved history, templates, and unlimited exports."
+          name="Pro monthly"
+          price="$9"
+        />
+        <PricingCard
+          description="Branding, reusable clients, bulk exports, and team features."
+          name="Business"
+          price="$19"
+        />
+      </div>
+    </section>
+  )
+}
+
+function PricingCard({
+  description,
+  name,
+  price,
+}: {
+  description: string
+  name: string
+  price: string
+}) {
+  return (
+    <article className="pricing-card">
+      <h2>{name}</h2>
+      <strong>{price}</strong>
+      <p>{description}</p>
+      <button
+        type="button"
+        onClick={() => trackEvent('checkout_start', { plan: name })}
+      >
+        PayPal checkout placeholder
+      </button>
+      <button
+        className="secondary-pay"
+        type="button"
+        onClick={() => trackEvent('crypto_checkout_start', { plan: name })}
+      >
+        Solana USDC placeholder
+      </button>
+    </article>
+  )
+}
+
+function SeoSection() {
+  return (
+    <section className="seo-section" id="seo">
+      <div>
+        <h2>SEO and AdSense launch pages</h2>
+        <p>
+          These pages make the project easier to approve, index, and expand into
+          more monetized tools.
+        </p>
+      </div>
+      <div className="seo-grid">
+        <article>
+          <h3>Free invoice generator</h3>
+          <p>
+            Target searches around invoice templates, PDF invoices, and small
+            business billing.
+          </p>
+        </article>
+        <article>
+          <h3>Free quote generator</h3>
+          <p>
+            Capture service businesses before the invoice stage and cross-sell
+            Pro exports.
+          </p>
+        </article>
+        <article>
+          <h3>How to write business documents</h3>
+          <p>
+            Educational content for organic traffic, affiliate links, and
+            internal links to each tool.
+          </p>
+        </article>
+      </div>
+    </section>
+  )
+}
+
+function ToolPortfolio() {
+  return (
+    <section className="portfolio" id="portfolio">
+      <div>
+        <h2>Tools in the portfolio</h2>
+        <p>
+          Each tool gets free usage, SEO pages, ad inventory, and a paid upgrade
+          path.
+        </p>
+      </div>
+      <div className="tool-cards">
+        <ToolCard icon={<FileText size={18} />} label="Invoice generator" to="/invoice-generator" />
+        <ToolCard icon={<FileText size={18} />} label="Quote generator" to="/quote-generator" />
+        <ToolCard icon={<ReceiptText size={18} />} label="Receipt maker" to="/receipt-maker" />
+        <ToolCard
+          icon={<Calculator size={18} />}
+          label="Profit margin calculator"
+          to="/profit-margin-calculator"
+        />
+        <ToolCard
+          icon={<Calculator size={18} />}
+          label="Freelance rate calculator"
+          to="/freelance-rate-calculator"
+        />
+      </div>
+    </section>
+  )
+}
+
+function ToolCard({
+  icon,
+  label,
+  to,
+}: {
+  icon: React.ReactNode
+  label: string
+  to: string
+}) {
+  return (
+    <Link to={to}>
+      {icon}
+      <span>{label}</span>
+    </Link>
+  )
+}
+
+function PolicyPage({ type }: { type: 'privacy' | 'terms' }) {
+  const isPrivacy = type === 'privacy'
+  return (
+    <section className="legal-page">
+      <h1>{isPrivacy ? 'Privacy Policy' : 'Terms of Service'}</h1>
+      <p>
+        {isPrivacy
+          ? 'Drafts are stored in your browser. Public launch should add the final analytics, advertising, payment, and support disclosures.'
+          : 'LedgerLaunch tools are productivity helpers. Users are responsible for reviewing accuracy before sending documents or making business decisions.'}
+      </p>
+      <div className="legal-grid">
+        <article>
+          <h2>{isPrivacy ? 'Local drafts' : 'Tool accuracy'}</h2>
+          <p>
+            {isPrivacy
+              ? 'Invoice, quote, and receipt drafts currently stay in local browser storage unless future account sync is added.'
+              : 'Generated outputs should be reviewed for tax, legal, billing, and client-specific requirements.'}
+          </p>
+        </article>
+        <article>
+          <h2>{isPrivacy ? 'Ads and analytics' : 'Payments'}</h2>
+          <p>
+            {isPrivacy
+              ? 'AdSense and production analytics should be disclosed here before deployment.'
+              : 'Paid exports and Pro plans will be processed by configured payment providers once merchant accounts are connected.'}
+          </p>
+        </article>
+      </div>
+    </section>
+  )
+}
+
+function ContactPage() {
+  return (
+    <section className="legal-page">
+      <h1>Contact</h1>
+      <p>
+        Add the real support email before public launch. This page exists now so
+        AdSense and payment-provider readiness have a proper destination.
+      </p>
+      <form className="contact-form">
+        <label>
+          Name
+          <input placeholder="Your name" />
+        </label>
+        <label>
+          Email
+          <input placeholder="you@example.com" type="email" />
+        </label>
+        <label>
+          Message
+          <textarea placeholder="How can we help?" />
+        </label>
+        <button type="button" onClick={() => trackEvent('contact_submit_mock', {})}>
+          Save as support lead
+        </button>
+      </form>
+    </section>
+  )
+}
+
+function LegalTeaser() {
+  return (
+    <section className="legal-section" id="legal">
+      <article>
+        <h2>Privacy</h2>
+        <p>Draft data is saved in this browser only until account sync exists.</p>
+        <Link to="/privacy">Read privacy</Link>
+      </article>
+      <article>
+        <h2>Terms</h2>
+        <p>Tools are productivity helpers and should be reviewed before use.</p>
+        <Link to="/terms">Read terms</Link>
+      </article>
+      <article>
+        <h2>Contact</h2>
+        <p>Add a support email before AdSense or payment review.</p>
+        <Link to="/contact">Open contact</Link>
+      </article>
+    </section>
+  )
+}
+
+export default App
