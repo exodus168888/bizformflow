@@ -369,6 +369,7 @@ function Header() {
         <NavLink to="/quote-generator">Quote</NavLink>
         <NavLink to="/receipt-maker">Receipt</NavLink>
         <NavLink to="/profit-margin-calculator">Margin</NavLink>
+        <NavLink to="/freelance-rate-calculator">Freelance</NavLink>
         <NavLink to="/pricing">Pricing</NavLink>
       </nav>
       <Link className="topbar-action" to="/pricing">
