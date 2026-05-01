@@ -116,7 +116,7 @@ const routeDescriptions: Record<string, string> = {
 
 const siteOrigin =
   import.meta.env.VITE_SITE_URL?.replace(/\/$/, '') ??
-  'https://your-domain.example'
+  'https://bizformflow.vercel.app'
 
 const trackEvent = (name: string, data: Record<string, string | number>) => {
   console.info('[analytics]', {

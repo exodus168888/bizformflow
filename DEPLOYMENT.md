@@ -15,8 +15,8 @@
 
 ## Before Public Launch
 
-1. Choose a domain.
-2. Replace every `https://your-domain.example` value:
+1. Choose a custom domain.
+2. Replace every `https://bizformflow.vercel.app` value after connecting a custom domain:
    - `index.html`
    - `public/robots.txt`
    - `public/sitemap.xml`
@@ -70,9 +70,9 @@ The included `public/_redirects` file rewrites all app routes to `index.html`.
 
 After deployment:
 
-1. Add the domain property.
+1. Add the domain or URL-prefix property.
 2. Verify ownership.
-3. Submit `https://your-domain.example/sitemap.xml`.
+3. Submit `https://bizformflow.vercel.app/sitemap.xml` or the sitemap for the custom domain.
 4. Request indexing for the main tool pages.
 
 ## AdSense Readiness Checklist
@@ -85,4 +85,3 @@ After deployment:
 - No broken routes.
 - No fake ad widgets on the production domain unless clearly non-ad placeholders are removed.
 - Enough useful content beyond a thin tool shell.
-
