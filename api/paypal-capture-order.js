@@ -23,13 +23,12 @@ async function getAccessToken() {
     method: 'POST',
   })
 
+  const text = await response.text()
   if (!response.ok) {
-    const details = await response.text()
-    throw new Error(`PayPal token request failed: ${details}`)
+    throw new Error(`PayPal token request failed (${response.status}): ${text}`)
   }
 
-  const data = await response.json()
-  return data.access_token
+  return JSON.parse(text).access_token
 }
 
 async function paypalRequest(path, options = {}) {
@@ -42,24 +41,39 @@ async function paypalRequest(path, options = {}) {
       ...(options.headers || {}),
     },
   })
-
   const text = await response.text()
   const data = text ? JSON.parse(text) : {}
 
   if (!response.ok) {
-    throw new Error(JSON.stringify(data))
+    throw new Error(`PayPal API failed (${response.status}): ${text}`)
   }
 
   return data
 }
 
-function sendJson(res, status, body) {
-  res.statusCode = status
-  res.setHeader('Content-Type', 'application/json')
-  res.end(JSON.stringify(body))
-}
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method not allowed' })
+    return
+  }
 
-module.exports = {
-  paypalRequest,
-  sendJson,
+  try {
+    const { orderId } = req.body || {}
+
+    if (!orderId) {
+      res.status(400).json({ error: 'Missing orderId' })
+      return
+    }
+
+    const capture = await paypalRequest(`/v2/checkout/orders/${orderId}/capture`, {
+      method: 'POST',
+    })
+
+    res.status(200).json({
+      id: capture.id,
+      status: capture.status,
+    })
+  } catch (error) {
+    res.status(500).json({ error: error instanceof Error ? error.message : String(error) })
+  }
 }

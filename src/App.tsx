@@ -1681,13 +1681,17 @@ function PayPalCheckoutButton({
                 provider: 'paypal',
               })
               void actions
-              return fetch('/api/paypal/create-order', {
+              return fetch('/api/paypal-create-order', {
                 method: 'POST',
               })
                 .then(async (response) => {
-                  const data = await response.json()
+                  const text = await response.text()
+                  const data = text ? JSON.parse(text) : {}
                   if (!response.ok) {
-                    throw new Error(data.error ?? 'Create order failed')
+                    throw new Error(
+                      data.error ??
+                        `Create order failed (${response.status}): ${text || 'empty response'}`,
+                    )
                   }
                   debug(`Server created order ${data.id}`)
                   return data.id as string
@@ -1697,14 +1701,18 @@ function PayPalCheckoutButton({
               debug('Payment approved by buyer, capturing order')
               try {
                 const orderData = data as { orderID?: string }
-                const response = await fetch('/api/paypal/capture-order', {
+                const response = await fetch('/api/paypal-capture-order', {
                   body: JSON.stringify({ orderId: orderData.orderID }),
                   headers: { 'Content-Type': 'application/json' },
                   method: 'POST',
                 })
-                const capture = await response.json()
+                const text = await response.text()
+                const capture = text ? JSON.parse(text) : {}
                 if (!response.ok) {
-                  throw new Error(capture.error ?? 'Capture failed')
+                  throw new Error(
+                    capture.error ??
+                      `Capture failed (${response.status}): ${text || 'empty response'}`,
+                  )
                 }
                 debug(`Server captured order with status ${capture.status ?? 'unknown'}`)
                 onSuccessRef.current(capture.id ?? orderData.orderID ?? 'sandbox-order')
