@@ -12,6 +12,7 @@
 - `site.webmanifest`.
 - Route-specific titles, descriptions, canonical URLs, and social metadata.
 - Pricing page with PayPal checkout for single clean PDF exports.
+- AdSense publisher script for `ca-pub-8034493444478789`.
 - Privacy, terms, and contact pages.
 
 ## Before Public Launch
@@ -34,7 +35,7 @@
    - PayPal client secret
    - Solana USDC receiver wallet
 6. Replace subscription buttons with real checkout flows when monthly plans are ready.
-7. Replace sponsor/ad spaces with AdSense units only after approval.
+7. Replace sponsor/ad spaces with ad units only after AdSense approves the site.
 
 ## PayPal Environment Variables
 
