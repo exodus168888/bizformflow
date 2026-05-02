@@ -130,7 +130,19 @@ const siteOrigin =
 const gaMeasurementId = import.meta.env.VITE_GA_MEASUREMENT_ID ?? 'G-FRCTD5XLQY'
 
 const trackEvent = (name: string, data: Record<string, string | number>) => {
-  window.gtag?.('event', name, data)
+  const conversionNames = new Set([
+    'checkout_start',
+    'clean_export_intent',
+    'contact_lead',
+    'crypto_checkout_start',
+    'free_pdf_export',
+    'pricing_view',
+  ])
+
+  window.gtag?.('event', name, {
+    ...data,
+    event_category: conversionNames.has(name) ? 'conversion' : 'engagement',
+  })
   console.info('[analytics]', {
     data,
     name,
@@ -400,6 +412,7 @@ const buildPdf = async (
     tax: number
     total: number
   },
+  options: { clean: boolean },
 ) => {
   const { jsPDF } = await import('jspdf')
   const copy = getToolCopy(tool)
@@ -495,6 +508,16 @@ const buildPdf = async (
   pdf.text(document.notes, margin, y + 82, {
     maxWidth: pageWidth - margin * 2,
   })
+
+  if (!options.clean) {
+    const footerY = pdf.internal.pageSize.getHeight() - 34
+    pdf.setDrawColor('#dddcd4')
+    pdf.line(margin, footerY - 16, pageWidth - margin, footerY - 16)
+    pdf.setFont('helvetica', 'bold')
+    pdf.setFontSize(9)
+    pdf.setTextColor('#6f716b')
+    pdf.text('Created with BizFormFlow - upgrade for clean exports', margin, footerY)
+  }
 
   pdf.save(`${document.documentNumber || copy.documentLabel}.pdf`)
 }
@@ -708,9 +731,17 @@ function DocumentTool({ tool }: { tool: ToolType }) {
     trackEvent('draft_reset', { tool })
   }
 
-  const exportPdf = async () => {
-    await buildPdf(tool, document, items, totals)
-    trackEvent('pdf_export', {
+  const exportPdf = async (clean: boolean) => {
+    await buildPdf(tool, document, items, totals, { clean })
+    trackEvent(clean ? 'clean_pdf_export_preview' : 'free_pdf_export', {
+      amount: Math.round(totals.total),
+      export_type: clean ? 'clean' : 'watermarked',
+      tool,
+    })
+  }
+
+  const startCleanExport = () => {
+    trackEvent('clean_export_intent', {
       amount: Math.round(totals.total),
       tool,
     })
@@ -736,16 +767,18 @@ function DocumentTool({ tool }: { tool: ToolType }) {
           <div className="section-heading">
             <div>
               <span>{copy.documentLabel} details</span>
-              <small>Draft autosaves in this browser</small>
+              <small>
+                Draft autosaves locally. Free PDFs include a BizFormFlow footer.
+              </small>
             </div>
             <div className="button-row">
               <button type="button" onClick={resetDraft}>
                 <RotateCcw size={16} />
                 Reset
               </button>
-              <button type="button" onClick={exportPdf}>
+              <button type="button" onClick={() => exportPdf(false)}>
                 <Download size={16} />
-                PDF
+                Free PDF
               </button>
             </div>
           </div>
@@ -898,7 +931,9 @@ function DocumentTool({ tool }: { tool: ToolType }) {
 
           <div className="monetization-strip">
             <div className="ad-unit">Partner or ad space</div>
-            <Link to="/pricing">Remove watermark with Pro export</Link>
+            <Link to="/pricing" onClick={startCleanExport}>
+              Remove watermark with paid export
+            </Link>
           </div>
         </form>
 
@@ -1319,29 +1354,36 @@ function ResultGrid({ results }: { results: Array<[string, string]> }) {
 }
 
 function PricingPage() {
+  useEffect(() => {
+    trackEvent('pricing_view', { source: 'pricing_page' })
+  }, [])
+
   return (
     <section className="pricing-page">
       <div>
         <h1>Simple pricing for the first revenue tests.</h1>
         <p>
-          These are checkout-ready product tiers. PayPal and Solana USDC buttons
-          are intentionally configuration-gated until real merchant details are
-          added.
+          Free exports include a small BizFormFlow footer. Paid exports and Pro
+          plans will unlock clean PDFs, saved history, templates, and future
+          business workflows once checkout is connected.
         </p>
       </div>
       <div className="pricing-grid">
         <PricingCard
-          description="Clean PDF for one invoice, quote, or receipt."
+          cta="Start single export checkout"
+          description="One clean PDF export for an invoice, quote, or receipt without the BizFormFlow footer."
           name="Single export"
           price="$3"
         />
         <PricingCard
-          description="No watermark, saved history, templates, and unlimited exports."
+          cta="Start Pro checkout"
+          description="Clean exports, saved document history, reusable templates, and unlimited monthly exports."
           name="Pro monthly"
           price="$9"
         />
         <PricingCard
-          description="Branding, reusable clients, bulk exports, and team features."
+          cta="Start Business checkout"
+          description="Branding, reusable clients, bulk exports, team workflows, and higher-volume document tools."
           name="Business"
           price="$19"
         />
@@ -1351,10 +1393,12 @@ function PricingPage() {
 }
 
 function PricingCard({
+  cta,
   description,
   name,
   price,
 }: {
+  cta: string
   description: string
   name: string
   price: string
@@ -1366,16 +1410,18 @@ function PricingCard({
       <p>{description}</p>
       <button
         type="button"
-        onClick={() => trackEvent('checkout_start', { plan: name })}
+        onClick={() => trackEvent('checkout_start', { plan: name, provider: 'paypal' })}
       >
-        PayPal checkout placeholder
+        {cta}
       </button>
       <button
         className="secondary-pay"
         type="button"
-        onClick={() => trackEvent('crypto_checkout_start', { plan: name })}
+        onClick={() =>
+          trackEvent('crypto_checkout_start', { plan: name, provider: 'solana_usdc' })
+        }
       >
-        Solana USDC placeholder
+        Use Solana USDC instead
       </button>
     </article>
   )
@@ -1535,7 +1581,7 @@ function ContactPage() {
           Message
           <textarea placeholder="How can we help?" />
         </label>
-        <button type="button" onClick={() => trackEvent('contact_submit_mock', {})}>
+        <button type="button" onClick={() => trackEvent('contact_lead', {})}>
           Prepare support request
         </button>
       </form>
