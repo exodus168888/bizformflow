@@ -168,6 +168,7 @@ const gaMeasurementId = import.meta.env.VITE_GA_MEASUREMENT_ID ?? 'G-FRCTD5XLQY'
 const paypalClientId =
   import.meta.env.VITE_PAYPAL_CLIENT_ID ??
   'AWjrFsmm7NZfosblD3IARz4xII0bdIsbhW57qTajhHK5BsAZT1saSzov264uclAJyACDJG9j5-946Ml4'
+const supportEmail = 'support@bizformflow.com'
 const cleanExportCreditsKey = 'bizformflow.cleanExportCredits.v1'
 const creditsChangedEvent = 'bizformflow:credits-changed'
 
@@ -1496,9 +1497,9 @@ function PricingPage() {
       <div>
         <h1>Simple pricing for the first revenue tests.</h1>
         <p>
-          Free exports include a small BizFormFlow footer. Paid exports and Pro
-          plans will unlock clean PDFs, saved history, templates, and future
-          business workflows once checkout is connected.
+          Free exports include a small BizFormFlow footer. Paid single exports
+          unlock clean PDFs, while Pro plans will add saved history, templates,
+          and future business workflows after subscription checkout is activated.
         </p>
       </div>
       <div className="pricing-grid">
@@ -1510,14 +1511,14 @@ function PricingPage() {
           product="single_export"
         />
         <PricingCard
-          cta="Start Pro checkout"
+          cta="Pro plan not yet activated"
           description="Clean exports, saved document history, reusable templates, and unlimited monthly exports."
           name="Pro monthly"
           price="$9"
           product="pro_monthly"
         />
         <PricingCard
-          cta="Start Business checkout"
+          cta="Business plan not yet activated"
           description="Branding, reusable clients, bulk exports, team workflows, and higher-volume document tools."
           name="Business"
           price="$19"
@@ -1596,8 +1597,10 @@ function PricingCard({
         </>
       ) : (
         <button
+          className="unavailable-pay"
+          disabled
           type="button"
-          onClick={() => trackEvent('checkout_start', { plan: name, provider: 'paypal' })}
+          title={`${name} checkout is not active yet`}
         >
           {cta}
         </button>
@@ -1879,40 +1882,40 @@ function PolicyPage({ type }: { type: 'privacy' | 'terms' }) {
       <h1>{isPrivacy ? 'Privacy Policy' : 'Terms of Service'}</h1>
       <p>
         {isPrivacy
-          ? 'BizFormFlow is designed to be useful without requiring an account. Drafts are currently stored in your browser so you can refresh without immediately losing your work.'
-          : 'BizFormFlow tools are productivity helpers for creating business documents and making basic pricing calculations. Users are responsible for reviewing outputs before sending them to clients or relying on them for business decisions.'}
+          ? 'BizFormFlow is designed to be useful without requiring an account. Drafts are currently stored in your browser, while analytics, payments, and future advertising may be handled by trusted third-party providers.'
+          : 'BizFormFlow tools are productivity helpers for creating business documents and making basic pricing calculations. They are not legal, tax, accounting, or financial advice.'}
       </p>
       <div className="legal-grid">
         <article>
-          <h2>{isPrivacy ? 'Local drafts' : 'Tool accuracy'}</h2>
+          <h2>{isPrivacy ? 'Local drafts and storage' : 'Tool accuracy'}</h2>
           <p>
             {isPrivacy
-              ? 'Invoice, quote, and receipt drafts currently stay in local browser storage on the device you use. Clearing browser data may remove saved drafts.'
-              : 'Generated documents and calculator outputs should be checked for tax, legal, billing, currency, and client-specific requirements.'}
+              ? 'Invoice, quote, and receipt drafts stay in local browser storage on the device you use. Clearing browser data may remove saved drafts.'
+              : 'Generated documents and calculator outputs should be checked for tax, legal, billing, currency, and client-specific requirements before use.'}
           </p>
         </article>
         <article>
           <h2>{isPrivacy ? 'Ads and analytics' : 'Payments'}</h2>
           <p>
             {isPrivacy
-              ? 'Production analytics, advertising, affiliate links, and payment providers will be disclosed here before they are enabled.'
-              : 'Paid exports and Pro plans will be processed by configured payment providers once checkout is connected. Do not enter payment information until a trusted checkout page is active.'}
+              ? 'BizFormFlow uses Google Analytics to understand site usage. Advertising, including Google AdSense, and affiliate placements may be added later and may use cookies or similar technologies.'
+              : 'Single clean PDF exports are processed through PayPal checkout. Payment information is handled by the payment provider, not stored directly by BizFormFlow.'}
           </p>
         </article>
         <article>
           <h2>{isPrivacy ? 'Contact information' : 'User responsibility'}</h2>
           <p>
             {isPrivacy
-              ? 'A dedicated support inbox will be added before paid checkout or advertising is enabled.'
-              : 'You are responsible for confirming that names, addresses, totals, tax rates, dates, and payment terms are correct.'}
+              ? `If you contact BizFormFlow at ${supportEmail}, we may use your email address and message only to respond to your request.`
+              : 'You are responsible for confirming that names, addresses, totals, tax rates, dates, payment terms, and client details are correct.'}
           </p>
         </article>
         <article>
-          <h2>{isPrivacy ? 'Future accounts' : 'Availability'}</h2>
+          <h2>{isPrivacy ? 'Payment providers' : 'Availability'}</h2>
           <p>
             {isPrivacy
-              ? 'If account sync is added later, this policy should be updated before personal account data is collected.'
-              : 'The service may change as new tools, payment features, analytics, and advertising integrations are added.'}
+              ? 'PayPal may process checkout data for paid exports. Solana USDC checkout is shown as unavailable until a production crypto payment flow is activated.'
+              : 'The service may change as new tools, payment features, analytics, advertising integrations, and paid plans are added.'}
           </p>
         </article>
       </div>
@@ -1926,8 +1929,8 @@ function ContactPage() {
       <h1>Contact</h1>
       <p>
         Use this page for support requests, tool feedback, billing questions,
-        partnership ideas, or feature suggestions. A dedicated support inbox
-        should be connected before broader paid launch.
+        partnership ideas, or feature suggestions. Email{' '}
+        <a href={`mailto:${supportEmail}`}>{supportEmail}</a> for direct help.
       </p>
       <form className="contact-form">
         <label>
@@ -1942,7 +1945,13 @@ function ContactPage() {
           Message
           <textarea placeholder="How can we help?" />
         </label>
-        <button type="button" onClick={() => trackEvent('contact_lead', {})}>
+        <button
+          type="button"
+          onClick={() => {
+            trackEvent('contact_lead', {})
+            window.location.href = `mailto:${supportEmail}`
+          }}
+        >
           Prepare support request
         </button>
       </form>
@@ -1965,7 +1974,10 @@ function LegalTeaser() {
       </article>
       <article>
         <h2>Contact</h2>
-        <p>Use the contact page for support requests while a dedicated inbox is being configured.</p>
+        <p>
+          For support, billing questions, or partnership ideas, contact{' '}
+          <a href={`mailto:${supportEmail}`}>{supportEmail}</a>.
+        </p>
         <Link to="/contact">Open contact</Link>
       </article>
     </section>

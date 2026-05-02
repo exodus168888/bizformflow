@@ -23,7 +23,7 @@
    - `public/sitemap.xml`
    - `src/App.tsx`
    - `.env.example`
-3. Add a real support email on the contact, privacy, and terms pages.
+3. Keep `support@bizformflow.com` active and monitored for contact, privacy, and terms requests.
 4. Decide analytics provider:
    - Google Analytics
    - Plausible
