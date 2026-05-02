@@ -13,6 +13,16 @@ import {
 } from 'lucide-react'
 import './App.css'
 
+declare global {
+  interface Window {
+    gtag?: (
+      command: 'config' | 'event' | 'js',
+      targetId: string | Date,
+      config?: Record<string, string | number | boolean>,
+    ) => void
+  }
+}
+
 type ToolType = 'invoice' | 'quote' | 'receipt'
 
 type LineItem = {
@@ -117,8 +127,10 @@ const routeDescriptions: Record<string, string> = {
 const siteOrigin =
   import.meta.env.VITE_SITE_URL?.replace(/\/$/, '') ??
   'https://bizformflow.vercel.app'
+const gaMeasurementId = import.meta.env.VITE_GA_MEASUREMENT_ID ?? 'G-FRCTD5XLQY'
 
 const trackEvent = (name: string, data: Record<string, string | number>) => {
+  window.gtag?.('event', name, data)
   console.info('[analytics]', {
     data,
     name,
@@ -534,6 +546,12 @@ function Header() {
     setMeta('meta[name="twitter:description"]', 'content', description)
     setMeta('link[rel="canonical"]', 'href', canonical)
 
+    window.gtag?.('config', gaMeasurementId, {
+      page_location: canonical,
+      page_path: location.pathname,
+      page_title: title,
+      send_page_view: true,
+    })
     trackEvent('page_view', { path: location.pathname })
   }, [location.pathname])
 
