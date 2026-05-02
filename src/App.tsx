@@ -128,29 +128,29 @@ const starterItems: LineItem[] = [
 ]
 
 const routeTitles: Record<string, string> = {
-  '/': 'LedgerLaunch Small Business Tools',
-  '/contact': 'Contact LedgerLaunch',
+  '/': 'BizFormFlow Small Business Tools',
+  '/contact': 'Contact BizFormFlow',
   '/freelance-rate-calculator': 'Freelance Rate Calculator',
   '/invoice-generator': 'Free Invoice Generator',
-  '/pricing': 'LedgerLaunch Pricing',
-  '/privacy': 'LedgerLaunch Privacy Policy',
+  '/pricing': 'BizFormFlow Pricing',
+  '/privacy': 'BizFormFlow Privacy Policy',
   '/profit-margin-calculator': 'Profit Margin Calculator',
   '/quote-generator': 'Free Quote Generator',
   '/receipt-maker': 'Receipt Maker',
-  '/terms': 'LedgerLaunch Terms',
+  '/terms': 'BizFormFlow Terms',
 }
 
 const routeDescriptions: Record<string, string> = {
   '/': 'Free small business tools for invoices, quotes, receipts, profit margins, freelance rates, and PDF exports.',
-  '/contact': 'Contact LedgerLaunch for support and partnership inquiries.',
+  '/contact': 'Contact BizFormFlow for support and partnership inquiries.',
   '/freelance-rate-calculator':
     'Estimate hourly, daily, monthly, and annual freelance rates from income goals, expenses, taxes, and billable hours.',
   '/invoice-generator':
     'Create a free invoice with line items, discounts, tax, autosave, live totals, and PDF export.',
   '/pricing':
-    'Review LedgerLaunch paid export, Pro, and Business pricing options for small business tools.',
+    'Review BizFormFlow paid export, Pro, and Business pricing options for small business tools.',
   '/privacy':
-    'Read how LedgerLaunch handles local drafts, analytics, ads, and payment disclosures.',
+    'Read how BizFormFlow handles local drafts, analytics, ads, and payment disclosures.',
   '/profit-margin-calculator':
     'Calculate profit, margin, and markup from product cost, selling price, and fees.',
   '/quote-generator':
@@ -158,7 +158,7 @@ const routeDescriptions: Record<string, string> = {
   '/receipt-maker':
     'Create a free receipt with line items, payment details, live totals, and PDF export.',
   '/terms':
-    'Read the LedgerLaunch terms for using small business productivity tools.',
+    'Read the BizFormFlow terms for using small business productivity tools.',
 }
 
 const siteOrigin =
@@ -612,6 +612,7 @@ function App() {
         <Route path="/terms" element={<PolicyPage type="terms" />} />
         <Route path="/contact" element={<ContactPage />} />
       </Routes>
+      <Footer />
     </main>
   )
 }
@@ -651,9 +652,9 @@ function Header() {
 
   return (
     <header className="topbar">
-      <Link className="brand" to="/" aria-label="LedgerLaunch home">
-        <span className="brand-mark">LL</span>
-        <span>LedgerLaunch</span>
+      <Link className="brand" to="/" aria-label="BizFormFlow home">
+        <span className="brand-mark">BF</span>
+        <span>BizFormFlow</span>
       </Link>
       <nav aria-label="Primary navigation">
         <NavLink to="/invoice-generator">Invoice</NavLink>
@@ -668,6 +669,38 @@ function Header() {
         Pro
       </Link>
     </header>
+  )
+}
+
+function Footer() {
+  return (
+    <footer className="site-footer">
+      <div className="footer-summary">
+        <Link className="brand footer-brand" to="/" aria-label="BizFormFlow home">
+          <span className="brand-mark">BF</span>
+          <span>BizFormFlow</span>
+        </Link>
+        <p>
+          Free document generators and calculators for small business owners,
+          freelancers, and service teams.
+        </p>
+      </div>
+      <nav aria-label="Footer tools">
+        <strong>Tools</strong>
+        <Link to="/invoice-generator">Invoice generator</Link>
+        <Link to="/quote-generator">Quote generator</Link>
+        <Link to="/receipt-maker">Receipt maker</Link>
+        <Link to="/profit-margin-calculator">Profit margin calculator</Link>
+        <Link to="/freelance-rate-calculator">Freelance rate calculator</Link>
+      </nav>
+      <nav aria-label="Footer business">
+        <strong>Business</strong>
+        <Link to="/pricing">Pricing</Link>
+        <Link to="/privacy">Privacy</Link>
+        <Link to="/terms">Terms</Link>
+        <Link to="/contact">Contact</Link>
+      </nav>
+    </footer>
   )
 }
 
@@ -1895,7 +1928,7 @@ function ContactPage() {
       <p>
         Use this page for support requests, tool feedback, billing questions,
         partnership ideas, or feature suggestions. A dedicated support inbox
-        should be connected before paid checkout is enabled.
+        should be connected before broader paid launch.
       </p>
       <form className="contact-form">
         <label>
@@ -1933,7 +1966,7 @@ function LegalTeaser() {
       </article>
       <article>
         <h2>Contact</h2>
-        <p>Add a support email before AdSense or payment review.</p>
+        <p>Use the contact page for support requests while a dedicated inbox is being configured.</p>
         <Link to="/contact">Open contact</Link>
       </article>
     </section>

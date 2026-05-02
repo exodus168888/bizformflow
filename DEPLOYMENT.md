@@ -32,8 +32,8 @@
    - PayPal client ID
    - PayPal client secret
    - Solana USDC receiver wallet
-6. Replace subscription placeholder buttons with real checkout flows.
-7. Replace placeholder ad slots with AdSense units only after approval.
+6. Replace subscription buttons with real checkout flows when monthly plans are ready.
+7. Replace sponsor/ad spaces with AdSense units only after approval.
 
 ## PayPal Environment Variables
 
@@ -114,5 +114,5 @@ After deployment:
 - Terms page.
 - Contact page.
 - No broken routes.
-- No fake ad widgets on the production domain unless clearly non-ad placeholders are removed.
+- No fake ad widgets on the production domain unless clearly labeled sponsor/ad spaces are removed.
 - Enough useful content beyond a thin tool shell.

@@ -1,6 +1,6 @@
 {
-  "name": "LedgerLaunch Small Business Tools",
-  "short_name": "LedgerLaunch",
+  "name": "BizFormFlow Small Business Tools",
+  "short_name": "BizFormFlow",
   "description": "Free small business tools for invoices, quotes, receipts, PDF exports, and calculators.",
   "start_url": "/",
   "display": "standalone",

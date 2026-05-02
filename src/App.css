@@ -806,6 +806,53 @@ th {
   padding: 22px;
 }
 
+.site-footer {
+  background: #171a1f;
+  color: white;
+  display: grid;
+  gap: 32px;
+  grid-template-columns: minmax(260px, 1fr) minmax(180px, 0.45fr) minmax(160px, 0.35fr);
+  padding: 34px clamp(18px, 4vw, 56px);
+}
+
+.footer-summary {
+  max-width: 520px;
+}
+
+.footer-brand {
+  color: white;
+}
+
+.footer-brand .brand-mark {
+  background: white;
+  color: var(--ink);
+}
+
+.site-footer p {
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.6;
+  margin: 14px 0 0;
+}
+
+.site-footer nav {
+  display: grid;
+  gap: 10px;
+}
+
+.site-footer nav strong {
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.site-footer a {
+  color: rgba(255, 255, 255, 0.78);
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  color: white;
+}
+
 .portfolio {
   align-items: flex-start;
   border-top: 1px solid var(--line);
@@ -872,7 +919,8 @@ th {
   .calculator-fields,
   .result-grid,
   .pricing-grid,
-  .legal-grid {
+  .legal-grid,
+  .site-footer {
     grid-template-columns: 1fr;
   }
 
