@@ -753,6 +753,13 @@ th {
   margin-top: 8px;
 }
 
+.pricing-card button.unavailable-pay {
+  background: var(--wash);
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.84;
+}
+
 .paypal-button {
   min-height: 46px;
 }

@@ -1603,13 +1603,12 @@ function PricingCard({
         </button>
       )}
       <button
-        className="secondary-pay"
+        className="secondary-pay unavailable-pay"
+        disabled
         type="button"
-        onClick={() =>
-          trackEvent('crypto_checkout_start', { plan: name, provider: 'solana_usdc' })
-        }
+        title="Solana USDC checkout is not active yet"
       >
-        Use Solana USDC instead
+        Solana USDC not yet activated
       </button>
     </article>
   )
