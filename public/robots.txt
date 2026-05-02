@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bizformflow.vercel.app/sitemap.xml
+Sitemap: https://bizformflow.pages.dev/sitemap.xml

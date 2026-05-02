@@ -163,7 +163,7 @@ const routeDescriptions: Record<string, string> = {
 
 const siteOrigin =
   import.meta.env.VITE_SITE_URL?.replace(/\/$/, '') ??
-  'https://bizformflow.vercel.app'
+  'https://bizformflow.pages.dev'
 const gaMeasurementId = import.meta.env.VITE_GA_MEASUREMENT_ID ?? 'G-FRCTD5XLQY'
 const paypalClientId =
   import.meta.env.VITE_PAYPAL_CLIENT_ID ??

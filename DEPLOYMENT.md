@@ -4,8 +4,8 @@
 
 - Vite production build.
 - React Router app routes.
-- Vercel SPA rewrite config in `vercel.json`.
 - Cloudflare Pages Functions for PayPal checkout under `functions/api`.
+- Vercel SPA rewrite config in `vercel.json` for fallback/testing deploys.
 - Netlify SPA fallback in `public/_redirects`.
 - `robots.txt`.
 - `sitemap.xml`.
@@ -17,7 +17,7 @@
 ## Before Public Launch
 
 1. Choose a custom domain.
-2. Replace every `https://bizformflow.vercel.app` value after connecting a custom domain:
+2. Replace every `https://bizformflow.pages.dev` value after connecting a custom domain:
    - `index.html`
    - `public/robots.txt`
    - `public/sitemap.xml`
@@ -38,7 +38,7 @@
 
 ## PayPal Environment Variables
 
-Set these in Vercel under Project Settings -> Environment Variables.
+Set these in Cloudflare Pages under Settings -> Environment variables. For Vercel fallback deployments, set the same variables under Project Settings -> Environment Variables.
 
 Sandbox:
 
@@ -58,15 +58,46 @@ PAYPAL_ENV=live
 VITE_PAYPAL_CLIENT_ID=<live client id>
 ```
 
-Do not store or paste the PayPal secret in public files or chat. After changing Vercel environment variables, redeploy production.
+Do not store or paste the PayPal secret in public files or chat. After changing production environment variables, redeploy production.
 
 Checkout diagnostics are hidden by default. To show the checkout log while testing, open:
 
 ```text
-https://bizformflow.vercel.app/pricing?debug=1
+https://bizformflow.pages.dev/pricing?debug=1
 ```
 
-## Vercel Deploy
+## Cloudflare Pages Deploy
+
+Cloudflare Pages is the preferred long-term free host for commercial experiments because Vercel Hobby is limited to personal, non-commercial use.
+
+Build command:
+
+```bash
+npm run build
+```
+
+Output directory:
+
+```bash
+dist
+```
+
+The included `public/_redirects` file rewrites all app routes to `index.html`, so direct visits like `/invoice-generator` work.
+
+Environment variables:
+
+```bash
+PAYPAL_CLIENT_ID=<sandbox or live client id>
+PAYPAL_CLIENT_SECRET=<sandbox or live secret>
+PAYPAL_ENV=sandbox
+VITE_PAYPAL_CLIENT_ID=<sandbox or live client id>
+VITE_GA_MEASUREMENT_ID=G-FRCTD5XLQY
+VITE_SITE_URL=https://<your-cloudflare-pages-domain>
+```
+
+The included `public/_redirects` file rewrites app routes to `index.html`, and the `functions/api` routes provide the PayPal server-side create/capture endpoints.
+
+## Vercel Fallback Deploy
 
 Build command:
 
@@ -81,35 +112,6 @@ dist
 ```
 
 The included `vercel.json` rewrites all app routes to `index.html`, so direct visits like `/invoice-generator` work.
-
-## Cloudflare Pages Deploy
-
-Cloudflare Pages is the preferred long-term free host for commercial experiments because Vercel Hobby is limited to personal, non-commercial use.
-
-Build settings:
-
-```bash
-npm run build
-```
-
-Output directory:
-
-```bash
-dist
-```
-
-Environment variables:
-
-```bash
-PAYPAL_CLIENT_ID=<sandbox or live client id>
-PAYPAL_CLIENT_SECRET=<sandbox or live secret>
-PAYPAL_ENV=sandbox
-VITE_PAYPAL_CLIENT_ID=<sandbox or live client id>
-VITE_GA_MEASUREMENT_ID=G-FRCTD5XLQY
-VITE_SITE_URL=https://<your-cloudflare-pages-domain>
-```
-
-The included `public/_redirects` file rewrites app routes to `index.html`, and the `functions/api` routes provide the PayPal server-side create/capture endpoints.
 
 ## Netlify Deploy
 
@@ -133,7 +135,7 @@ After deployment:
 
 1. Add the domain or URL-prefix property.
 2. Verify ownership.
-3. Submit `https://bizformflow.vercel.app/sitemap.xml` or the sitemap for the custom domain.
+3. Submit `https://bizformflow.pages.dev/sitemap.xml` or the sitemap for the custom domain.
 4. Request indexing for the main tool pages.
 
 ## AdSense Readiness Checklist
