@@ -5,6 +5,7 @@
 - Vite production build.
 - React Router app routes.
 - Vercel SPA rewrite config in `vercel.json`.
+- Cloudflare Pages Functions for PayPal checkout under `functions/api`.
 - Netlify SPA fallback in `public/_redirects`.
 - `robots.txt`.
 - `sitemap.xml`.
@@ -80,6 +81,35 @@ dist
 ```
 
 The included `vercel.json` rewrites all app routes to `index.html`, so direct visits like `/invoice-generator` work.
+
+## Cloudflare Pages Deploy
+
+Cloudflare Pages is the preferred long-term free host for commercial experiments because Vercel Hobby is limited to personal, non-commercial use.
+
+Build settings:
+
+```bash
+npm run build
+```
+
+Output directory:
+
+```bash
+dist
+```
+
+Environment variables:
+
+```bash
+PAYPAL_CLIENT_ID=<sandbox or live client id>
+PAYPAL_CLIENT_SECRET=<sandbox or live secret>
+PAYPAL_ENV=sandbox
+VITE_PAYPAL_CLIENT_ID=<sandbox or live client id>
+VITE_GA_MEASUREMENT_ID=G-FRCTD5XLQY
+VITE_SITE_URL=https://<your-cloudflare-pages-domain>
+```
+
+The included `public/_redirects` file rewrites app routes to `index.html`, and the `functions/api` routes provide the PayPal server-side create/capture endpoints.
 
 ## Netlify Deploy
 
