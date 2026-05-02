@@ -188,6 +188,18 @@ const addCleanExportCredit = () => {
   setCleanExportCredits(getCleanExportCredits() + 1)
 }
 
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  try {
+    return JSON.stringify(error)
+  } catch {
+    return String(error)
+  }
+}
+
 const trackEvent = (name: string, data: Record<string, string | number>) => {
   const conversionNames = new Set([
     'checkout_start',
@@ -1680,12 +1692,23 @@ function PayPalCheckoutButton({
             },
             onApprove: async (_data, actions) => {
               debug('Payment approved by buyer, capturing order')
-              const order = await actions.order.capture()
-              debug(`Order captured with status ${order.status ?? 'unknown'}`)
-              onSuccessRef.current(order.id ?? 'sandbox-order')
+              try {
+                const order = await actions.order.capture()
+                debug(`Order captured with status ${order.status ?? 'unknown'}`)
+                onSuccessRef.current(order.id ?? 'sandbox-order')
+              } catch (error) {
+                const message = getErrorMessage(error)
+                debug(`Capture failed: ${message}`)
+                onErrorRef.current(`PayPal capture failed: ${message}`)
+                trackEvent('payment_capture_error', {
+                  plan: planName,
+                  provider: 'paypal',
+                })
+              }
             },
             onError: (error) => {
               console.error(error)
+              debug(`PayPal SDK error: ${getErrorMessage(error)}`)
               onErrorRef.current(
                 'PayPal checkout could not be completed. Please try again.',
               )
@@ -1704,6 +1727,7 @@ function PayPalCheckoutButton({
           .render(containerRef.current)
       } catch (error) {
         console.error(error)
+        debug(`PayPal load/render failed: ${getErrorMessage(error)}`)
         onErrorRef.current(
           'PayPal checkout could not load. Check your connection or client ID.',
         )
