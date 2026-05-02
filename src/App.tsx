@@ -1,5 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  Link,
+  NavLink,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom'
 import {
   BadgeDollarSign,
   Calculator,
@@ -20,6 +27,36 @@ declare global {
       targetId: string | Date,
       config?: Record<string, string | number | boolean>,
     ) => void
+    paypal?: {
+      Buttons: (options: {
+        createOrder: (
+          data: unknown,
+          actions: {
+            order: {
+              create: (payload: {
+                intent: 'CAPTURE'
+                purchase_units: Array<{
+                  amount: { currency_code: string; value: string }
+                  description: string
+                }>
+              }) => Promise<string>
+            }
+          },
+        ) => Promise<string>
+        onApprove: (
+          data: unknown,
+          actions: {
+            order: {
+              capture: () => Promise<{ id?: string; status?: string }>
+            }
+          },
+        ) => Promise<void>
+        onError?: (error: unknown) => void
+        style?: Record<string, string | number | boolean>
+      }) => {
+        render: (selectorOrElement: string | HTMLElement) => Promise<void>
+      }
+    }
   }
 }
 
@@ -128,6 +165,28 @@ const siteOrigin =
   import.meta.env.VITE_SITE_URL?.replace(/\/$/, '') ??
   'https://bizformflow.vercel.app'
 const gaMeasurementId = import.meta.env.VITE_GA_MEASUREMENT_ID ?? 'G-FRCTD5XLQY'
+const paypalClientId =
+  import.meta.env.VITE_PAYPAL_CLIENT_ID ??
+  'AWjrFsmm7NZfosblD3IARz4xII0bdIsbhW57qTajhHK5BsAZT1saSzov264uclAJyACDJG9j5-946Ml4'
+const cleanExportCreditsKey = 'bizformflow.cleanExportCredits.v1'
+const creditsChangedEvent = 'bizformflow:credits-changed'
+
+const getCleanExportCredits = () => {
+  if (typeof window === 'undefined') {
+    return 0
+  }
+
+  return Number(window.localStorage.getItem(cleanExportCreditsKey) ?? 0)
+}
+
+const setCleanExportCredits = (credits: number) => {
+  window.localStorage.setItem(cleanExportCreditsKey, String(Math.max(credits, 0)))
+  window.dispatchEvent(new Event(creditsChangedEvent))
+}
+
+const addCleanExportCredit = () => {
+  setCleanExportCredits(getCleanExportCredits() + 1)
+}
 
 const trackEvent = (name: string, data: Record<string, string | number>) => {
   const conversionNames = new Set([
@@ -659,17 +718,30 @@ function RevenuePanel() {
 }
 
 function DocumentTool({ tool }: { tool: ToolType }) {
+  const navigate = useNavigate()
   const initialDraft = getInitialDraft(tool)
   const copy = getToolCopy(tool)
   const [document, setDocument] = useState<BusinessDocument>(
     initialDraft.document,
   )
   const [items, setItems] = useState<LineItem[]>(initialDraft.items)
+  const [cleanCredits, setCleanCredits] = useState(getCleanExportCredits)
 
   useEffect(() => {
     const draft: SavedDraft = { document, items }
     window.localStorage.setItem(getDraftKey(tool), JSON.stringify(draft))
   }, [document, items, tool])
+
+  useEffect(() => {
+    const syncCredits = () => setCleanCredits(getCleanExportCredits())
+    window.addEventListener(creditsChangedEvent, syncCredits)
+    window.addEventListener('storage', syncCredits)
+
+    return () => {
+      window.removeEventListener(creditsChangedEvent, syncCredits)
+      window.removeEventListener('storage', syncCredits)
+    }
+  }, [])
 
   const totals = useMemo(() => {
     const subtotal = items.reduce(
@@ -732,7 +804,19 @@ function DocumentTool({ tool }: { tool: ToolType }) {
   }
 
   const exportPdf = async (clean: boolean) => {
+    if (clean && cleanCredits <= 0) {
+      trackEvent('clean_export_intent', {
+        amount: Math.round(totals.total),
+        tool,
+      })
+      navigate('/pricing')
+      return
+    }
+
     await buildPdf(tool, document, items, totals, { clean })
+    if (clean) {
+      setCleanExportCredits(cleanCredits - 1)
+    }
     trackEvent(clean ? 'clean_pdf_export_preview' : 'free_pdf_export', {
       amount: Math.round(totals.total),
       export_type: clean ? 'clean' : 'watermarked',
@@ -779,6 +863,10 @@ function DocumentTool({ tool }: { tool: ToolType }) {
               <button type="button" onClick={() => exportPdf(false)}>
                 <Download size={16} />
                 Free PDF
+              </button>
+              <button type="button" onClick={() => exportPdf(true)}>
+                <Sparkles size={16} />
+                {cleanCredits > 0 ? `Clean PDF (${cleanCredits})` : 'Buy clean PDF'}
               </button>
             </div>
           </div>
@@ -1374,18 +1462,21 @@ function PricingPage() {
           description="One clean PDF export for an invoice, quote, or receipt without the BizFormFlow footer."
           name="Single export"
           price="$3"
+          product="single_export"
         />
         <PricingCard
           cta="Start Pro checkout"
           description="Clean exports, saved document history, reusable templates, and unlimited monthly exports."
           name="Pro monthly"
           price="$9"
+          product="pro_monthly"
         />
         <PricingCard
           cta="Start Business checkout"
           description="Branding, reusable clients, bulk exports, team workflows, and higher-volume document tools."
           name="Business"
           price="$19"
+          product="business_monthly"
         />
       </div>
     </section>
@@ -1397,23 +1488,49 @@ function PricingCard({
   description,
   name,
   price,
+  product,
 }: {
   cta: string
   description: string
   name: string
   price: string
+  product: 'business_monthly' | 'pro_monthly' | 'single_export'
 }) {
+  const [status, setStatus] = useState('')
+  const isSingleExport = product === 'single_export'
+
   return (
     <article className="pricing-card">
       <h2>{name}</h2>
       <strong>{price}</strong>
       <p>{description}</p>
-      <button
-        type="button"
-        onClick={() => trackEvent('checkout_start', { plan: name, provider: 'paypal' })}
-      >
-        {cta}
-      </button>
+      {isSingleExport ? (
+        <>
+          <PayPalCheckoutButton
+            amount="3.00"
+            description="BizFormFlow clean PDF export"
+            onError={(message) => setStatus(message)}
+            onSuccess={(orderId) => {
+              addCleanExportCredit()
+              setStatus('Payment approved. One clean export credit is ready.')
+              trackEvent('payment_success', {
+                order_id: orderId,
+                plan: name,
+                provider: 'paypal',
+              })
+            }}
+            planName={name}
+          />
+          {status ? <p className="payment-status">{status}</p> : null}
+        </>
+      ) : (
+        <button
+          type="button"
+          onClick={() => trackEvent('checkout_start', { plan: name, provider: 'paypal' })}
+        >
+          {cta}
+        </button>
+      )}
       <button
         className="secondary-pay"
         type="button"
@@ -1425,6 +1542,110 @@ function PricingCard({
       </button>
     </article>
   )
+}
+
+function PayPalCheckoutButton({
+  amount,
+  description,
+  onError,
+  onSuccess,
+  planName,
+}: {
+  amount: string
+  description: string
+  onError: (message: string) => void
+  onSuccess: (orderId: string) => void
+  planName: string
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadScript = () =>
+      new Promise<void>((resolve, reject) => {
+        if (window.paypal) {
+          resolve()
+          return
+        }
+
+        const existing = document.querySelector<HTMLScriptElement>(
+          'script[data-bizformflow-paypal="true"]',
+        )
+        if (existing) {
+          existing.addEventListener('load', () => resolve(), { once: true })
+          existing.addEventListener('error', reject, { once: true })
+          return
+        }
+
+        const script = document.createElement('script')
+        script.dataset.bizformflowPaypal = 'true'
+        script.src = `https://www.paypal.com/sdk/js?client-id=${paypalClientId}&currency=USD&intent=capture`
+        script.addEventListener('load', () => resolve(), { once: true })
+        script.addEventListener('error', reject, { once: true })
+        document.body.appendChild(script)
+      })
+
+    const renderButton = async () => {
+      try {
+        await loadScript()
+        if (cancelled || !containerRef.current || !window.paypal) {
+          return
+        }
+
+        containerRef.current.innerHTML = ''
+        await window.paypal
+          .Buttons({
+            createOrder: (_data, actions) => {
+              trackEvent('checkout_start', {
+                amount: Number(amount),
+                plan: planName,
+                provider: 'paypal',
+              })
+              return actions.order.create({
+                intent: 'CAPTURE',
+                purchase_units: [
+                  {
+                    amount: { currency_code: 'USD', value: amount },
+                    description,
+                  },
+                ],
+              })
+            },
+            onApprove: async (_data, actions) => {
+              const order = await actions.order.capture()
+              onSuccess(order.id ?? 'sandbox-order')
+            },
+            onError: (error) => {
+              console.error(error)
+              onError('PayPal checkout could not be completed. Please try again.')
+              trackEvent('payment_error', {
+                plan: planName,
+                provider: 'paypal',
+              })
+            },
+            style: {
+              color: 'gold',
+              label: 'pay',
+              layout: 'vertical',
+              shape: 'rect',
+            },
+          })
+          .render(containerRef.current)
+      } catch (error) {
+        console.error(error)
+        onError('PayPal checkout could not load. Check your connection or client ID.')
+      }
+    }
+
+    void renderButton()
+
+    return () => {
+      cancelled = true
+    }
+  }, [amount, description, onError, onSuccess, planName])
+
+  return <div className="paypal-button" ref={containerRef} />
 }
 
 function SeoSection() {

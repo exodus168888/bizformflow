@@ -753,6 +753,21 @@ th {
   margin-top: 8px;
 }
 
+.paypal-button {
+  min-height: 46px;
+}
+
+.payment-status {
+  background: var(--wash);
+  border-radius: 6px;
+  color: var(--ink) !important;
+  font-size: 13px;
+  font-weight: 800;
+  margin: 10px 0 0 !important;
+  min-height: auto !important;
+  padding: 10px;
+}
+
 .legal-grid {
   display: grid;
   gap: 16px;
