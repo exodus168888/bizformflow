@@ -10,7 +10,7 @@
 - `sitemap.xml`.
 - `site.webmanifest`.
 - Route-specific titles, descriptions, canonical URLs, and social metadata.
-- Pricing page with PayPal and Solana USDC placeholders.
+- Pricing page with PayPal checkout for single clean PDF exports.
 - Privacy, terms, and contact pages.
 
 ## Before Public Launch
@@ -30,9 +30,40 @@
    - PostHog
 5. Connect payment provider details:
    - PayPal client ID
+   - PayPal client secret
    - Solana USDC receiver wallet
-6. Replace placeholder checkout buttons with real checkout flows.
+6. Replace subscription placeholder buttons with real checkout flows.
 7. Replace placeholder ad slots with AdSense units only after approval.
+
+## PayPal Environment Variables
+
+Set these in Vercel under Project Settings -> Environment Variables.
+
+Sandbox:
+
+```bash
+PAYPAL_CLIENT_ID=<sandbox client id>
+PAYPAL_CLIENT_SECRET=<sandbox secret>
+PAYPAL_ENV=sandbox
+VITE_PAYPAL_CLIENT_ID=<sandbox client id>
+```
+
+Live:
+
+```bash
+PAYPAL_CLIENT_ID=<live client id>
+PAYPAL_CLIENT_SECRET=<live secret>
+PAYPAL_ENV=live
+VITE_PAYPAL_CLIENT_ID=<live client id>
+```
+
+Do not store or paste the PayPal secret in public files or chat. After changing Vercel environment variables, redeploy production.
+
+Checkout diagnostics are hidden by default. To show the checkout log while testing, open:
+
+```text
+https://bizformflow.vercel.app/pricing?debug=1
+```
 
 ## Vercel Deploy
 

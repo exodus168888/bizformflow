@@ -1511,6 +1511,8 @@ function PricingCard({
   const [status, setStatus] = useState('')
   const [debugSteps, setDebugSteps] = useState<string[]>([])
   const isSingleExport = product === 'single_export'
+  const showCheckoutDebug =
+    new URLSearchParams(window.location.search).get('debug') === '1'
   const addDebugStep = useCallback((step: string) => {
     setDebugSteps((current) => [
       `${new Date().toLocaleTimeString()} - ${step}`,
@@ -1535,7 +1537,9 @@ function PricingCard({
             }}
             onSuccess={(orderId) => {
               addCleanExportCredit()
-              setStatus('Payment approved. One clean export credit is ready.')
+              setStatus(
+                'Payment approved. One clean export credit is ready on this browser.',
+              )
               addDebugStep(`Credit added from order ${orderId}`)
               trackEvent('payment_success', {
                 order_id: orderId,
@@ -1545,22 +1549,10 @@ function PricingCard({
             }}
             planName={name}
           />
-          <button
-            className="secondary-pay"
-            type="button"
-            onClick={() => {
-              addCleanExportCredit()
-              setStatus('Sandbox test credit added without PayPal.')
-              addDebugStep('Manual sandbox test credit added')
-              trackEvent('sandbox_credit_added', { plan: name })
-            }}
-          >
-            Add sandbox test credit
-          </button>
           {status ? <p className="payment-status">{status}</p> : null}
-          {debugSteps.length ? (
+          {showCheckoutDebug && debugSteps.length ? (
             <div className="payment-debug">
-              <strong>Sandbox checkout log</strong>
+              <strong>Checkout log</strong>
               <ul>
                 {debugSteps.slice(0, 6).map((step) => (
                   <li key={step}>{step}</li>
