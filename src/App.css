@@ -768,6 +768,28 @@ th {
   padding: 10px;
 }
 
+.payment-debug {
+  background: #f8f8f4;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  margin-top: 10px;
+  padding: 12px;
+}
+
+.payment-debug strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.payment-debug ul {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 0;
+  padding-left: 18px;
+}
+
 .legal-grid {
   display: grid;
   gap: 16px;

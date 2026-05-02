@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Link,
   NavLink,
@@ -1497,7 +1497,14 @@ function PricingCard({
   product: 'business_monthly' | 'pro_monthly' | 'single_export'
 }) {
   const [status, setStatus] = useState('')
+  const [debugSteps, setDebugSteps] = useState<string[]>([])
   const isSingleExport = product === 'single_export'
+  const addDebugStep = useCallback((step: string) => {
+    setDebugSteps((current) => [
+      `${new Date().toLocaleTimeString()} - ${step}`,
+      ...current,
+    ])
+  }, [])
 
   return (
     <article className="pricing-card">
@@ -1509,10 +1516,15 @@ function PricingCard({
           <PayPalCheckoutButton
             amount="3.00"
             description="BizFormFlow clean PDF export"
-            onError={(message) => setStatus(message)}
+            onDebug={addDebugStep}
+            onError={(message) => {
+              setStatus(message)
+              addDebugStep(message)
+            }}
             onSuccess={(orderId) => {
               addCleanExportCredit()
               setStatus('Payment approved. One clean export credit is ready.')
+              addDebugStep(`Credit added from order ${orderId}`)
               trackEvent('payment_success', {
                 order_id: orderId,
                 plan: name,
@@ -1521,7 +1533,29 @@ function PricingCard({
             }}
             planName={name}
           />
+          <button
+            className="secondary-pay"
+            type="button"
+            onClick={() => {
+              addCleanExportCredit()
+              setStatus('Sandbox test credit added without PayPal.')
+              addDebugStep('Manual sandbox test credit added')
+              trackEvent('sandbox_credit_added', { plan: name })
+            }}
+          >
+            Add sandbox test credit
+          </button>
           {status ? <p className="payment-status">{status}</p> : null}
+          {debugSteps.length ? (
+            <div className="payment-debug">
+              <strong>Sandbox checkout log</strong>
+              <ul>
+                {debugSteps.slice(0, 6).map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </>
       ) : (
         <button
@@ -1547,24 +1581,37 @@ function PricingCard({
 function PayPalCheckoutButton({
   amount,
   description,
+  onDebug,
   onError,
   onSuccess,
   planName,
 }: {
   amount: string
   description: string
+  onDebug: (step: string) => void
   onError: (message: string) => void
   onSuccess: (orderId: string) => void
   planName: string
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const onDebugRef = useRef(onDebug)
+  const onErrorRef = useRef(onError)
+  const onSuccessRef = useRef(onSuccess)
+
+  useEffect(() => {
+    onDebugRef.current = onDebug
+    onErrorRef.current = onError
+    onSuccessRef.current = onSuccess
+  }, [onDebug, onError, onSuccess])
 
   useEffect(() => {
     let cancelled = false
+    const debug = (step: string) => onDebugRef.current(step)
 
     const loadScript = () =>
       new Promise<void>((resolve, reject) => {
         if (window.paypal) {
+          debug('PayPal SDK already loaded')
           resolve()
           return
         }
@@ -1573,7 +1620,15 @@ function PayPalCheckoutButton({
           'script[data-bizformflow-paypal="true"]',
         )
         if (existing) {
-          existing.addEventListener('load', () => resolve(), { once: true })
+          debug('Waiting for existing PayPal SDK script')
+          existing.addEventListener(
+            'load',
+            () => {
+              debug('Existing PayPal SDK loaded')
+              resolve()
+            },
+            { once: true },
+          )
           existing.addEventListener('error', reject, { once: true })
           return
         }
@@ -1581,7 +1636,15 @@ function PayPalCheckoutButton({
         const script = document.createElement('script')
         script.dataset.bizformflowPaypal = 'true'
         script.src = `https://www.paypal.com/sdk/js?client-id=${paypalClientId}&currency=USD&intent=capture`
-        script.addEventListener('load', () => resolve(), { once: true })
+        debug('Loading PayPal SDK')
+        script.addEventListener(
+          'load',
+          () => {
+            debug('PayPal SDK loaded')
+            resolve()
+          },
+          { once: true },
+        )
         script.addEventListener('error', reject, { once: true })
         document.body.appendChild(script)
       })
@@ -1590,13 +1653,16 @@ function PayPalCheckoutButton({
       try {
         await loadScript()
         if (cancelled || !containerRef.current || !window.paypal) {
+          debug('PayPal render cancelled or unavailable')
           return
         }
 
         containerRef.current.innerHTML = ''
+        debug('Rendering PayPal button')
         await window.paypal
           .Buttons({
             createOrder: (_data, actions) => {
+              debug('Creating PayPal order')
               trackEvent('checkout_start', {
                 amount: Number(amount),
                 plan: planName,
@@ -1613,12 +1679,16 @@ function PayPalCheckoutButton({
               })
             },
             onApprove: async (_data, actions) => {
+              debug('Payment approved by buyer, capturing order')
               const order = await actions.order.capture()
-              onSuccess(order.id ?? 'sandbox-order')
+              debug(`Order captured with status ${order.status ?? 'unknown'}`)
+              onSuccessRef.current(order.id ?? 'sandbox-order')
             },
             onError: (error) => {
               console.error(error)
-              onError('PayPal checkout could not be completed. Please try again.')
+              onErrorRef.current(
+                'PayPal checkout could not be completed. Please try again.',
+              )
               trackEvent('payment_error', {
                 plan: planName,
                 provider: 'paypal',
@@ -1634,7 +1704,9 @@ function PayPalCheckoutButton({
           .render(containerRef.current)
       } catch (error) {
         console.error(error)
-        onError('PayPal checkout could not load. Check your connection or client ID.')
+        onErrorRef.current(
+          'PayPal checkout could not load. Check your connection or client ID.',
+        )
       }
     }
 
@@ -1643,7 +1715,7 @@ function PayPalCheckoutButton({
     return () => {
       cancelled = true
     }
-  }, [amount, description, onError, onSuccess, planName])
+  }, [amount, description, planName])
 
   return <div className="paypal-button" ref={containerRef} />
 }
