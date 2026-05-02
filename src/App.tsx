@@ -45,7 +45,7 @@ declare global {
         ) => Promise<string>
         onApprove: (
           data: unknown,
-          actions: {
+          actions?: {
             order: {
               capture: () => Promise<{ id?: string; status?: string }>
             }
@@ -1680,22 +1680,34 @@ function PayPalCheckoutButton({
                 plan: planName,
                 provider: 'paypal',
               })
-              return actions.order.create({
-                intent: 'CAPTURE',
-                purchase_units: [
-                  {
-                    amount: { currency_code: 'USD', value: amount },
-                    description,
-                  },
-                ],
+              void actions
+              return fetch('/api/paypal/create-order', {
+                method: 'POST',
               })
+                .then(async (response) => {
+                  const data = await response.json()
+                  if (!response.ok) {
+                    throw new Error(data.error ?? 'Create order failed')
+                  }
+                  debug(`Server created order ${data.id}`)
+                  return data.id as string
+                })
             },
-            onApprove: async (_data, actions) => {
+            onApprove: async (data) => {
               debug('Payment approved by buyer, capturing order')
               try {
-                const order = await actions.order.capture()
-                debug(`Order captured with status ${order.status ?? 'unknown'}`)
-                onSuccessRef.current(order.id ?? 'sandbox-order')
+                const orderData = data as { orderID?: string }
+                const response = await fetch('/api/paypal/capture-order', {
+                  body: JSON.stringify({ orderId: orderData.orderID }),
+                  headers: { 'Content-Type': 'application/json' },
+                  method: 'POST',
+                })
+                const capture = await response.json()
+                if (!response.ok) {
+                  throw new Error(capture.error ?? 'Capture failed')
+                }
+                debug(`Server captured order with status ${capture.status ?? 'unknown'}`)
+                onSuccessRef.current(capture.id ?? orderData.orderID ?? 'sandbox-order')
               } catch (error) {
                 const message = getErrorMessage(error)
                 debug(`Capture failed: ${message}`)
