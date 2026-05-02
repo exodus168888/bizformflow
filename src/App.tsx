@@ -166,6 +166,185 @@ const getToolCopy = (tool: ToolType) => {
   }
 }
 
+const documentSeoContent: Record<
+  ToolType,
+  {
+    commonMistakes: string[]
+    faqs: Array<[string, string]>
+    howTo: string[]
+    purpose: string
+    related: Array<[string, string]>
+    who: string
+  }
+> = {
+  invoice: {
+    commonMistakes: [
+      'Forgetting payment due dates, tax details, or clear line-item descriptions.',
+      'Sending invoices without a consistent invoice number.',
+      'Mixing estimates and final invoices in the same client workflow.',
+    ],
+    faqs: [
+      [
+        'Can I use this invoice generator for free?',
+        'Yes. You can create an invoice, edit totals, and export a PDF without creating an account.',
+      ],
+      [
+        'Where is my invoice data saved?',
+        'Drafts are saved in your browser storage so refreshing the page does not immediately erase your work.',
+      ],
+      [
+        'Does this replace accounting software?',
+        'No. It is a simple document tool. You should still review tax, legal, and bookkeeping requirements for your business.',
+      ],
+    ],
+    howTo: [
+      'Enter your business and client information.',
+      'Add each product or service as a separate line item.',
+      'Set discount and tax values if they apply.',
+      'Review the live preview, then export the invoice as a PDF.',
+    ],
+    purpose:
+      'Use the invoice generator to create a simple billing document after work has been delivered or a payment is due.',
+    related: [
+      ['Create a quote before work starts', '/quote-generator'],
+      ['Make a receipt after payment', '/receipt-maker'],
+      ['Check service profitability', '/profit-margin-calculator'],
+    ],
+    who: 'Freelancers, consultants, agencies, contractors, creators, and small businesses that need quick invoices without a full accounting setup.',
+  },
+  quote: {
+    commonMistakes: [
+      'Sending a quote without an expiry date.',
+      'Leaving the scope vague, which can cause disputes later.',
+      'Forgetting to convert accepted quotes into invoices.',
+    ],
+    faqs: [
+      [
+        'What is the difference between a quote and an invoice?',
+        'A quote estimates future work before approval. An invoice requests payment for work, products, or services.',
+      ],
+      [
+        'Can I add tax and discounts?',
+        'Yes. The quote generator supports line items, discounts, tax rate, and live totals.',
+      ],
+      [
+        'Can I turn a quote into an invoice?',
+        'For now, you can copy the same details into the invoice generator. A direct convert action is planned.',
+      ],
+    ],
+    howTo: [
+      'Describe the proposed service or product clearly.',
+      'Add quantities, rates, discounts, and tax if needed.',
+      'Set an expiry date so the client knows how long pricing is valid.',
+      'Export the quote PDF and send it to the client for approval.',
+    ],
+    purpose:
+      'Use the quote generator before work starts so a client can review pricing, scope, and estimated totals.',
+    related: [
+      ['Create the final invoice', '/invoice-generator'],
+      ['Make a receipt after payment', '/receipt-maker'],
+      ['Calculate your hourly rate', '/freelance-rate-calculator'],
+    ],
+    who: 'Service businesses, freelancers, tradespeople, and agencies that need to send estimates before beginning client work.',
+  },
+  receipt: {
+    commonMistakes: [
+      'Not marking the payment date clearly.',
+      'Sending a receipt before payment is actually received.',
+      'Forgetting to include what was paid for.',
+    ],
+    faqs: [
+      [
+        'When should I send a receipt?',
+        'Send a receipt after payment is received so the client has proof of payment.',
+      ],
+      [
+        'Is a receipt the same as an invoice?',
+        'No. An invoice requests payment. A receipt confirms payment has already happened.',
+      ],
+      [
+        'Can I export a PDF receipt?',
+        'Yes. Fill in the receipt details and export a PDF from the tool.',
+      ],
+    ],
+    howTo: [
+      'Enter your business and client details.',
+      'List what the customer paid for.',
+      'Confirm the amount paid and payment date.',
+      'Export the PDF receipt and keep a copy for your records.',
+    ],
+    purpose:
+      'Use the receipt maker after a payment is completed to give the customer a simple record of the transaction.',
+    related: [
+      ['Create an invoice before payment', '/invoice-generator'],
+      ['Create a quote before approval', '/quote-generator'],
+      ['Check your margin', '/profit-margin-calculator'],
+    ],
+    who: 'Small businesses, freelancers, vendors, and service providers that need a quick payment confirmation document.',
+  },
+}
+
+const calculatorSeoContent: Record<
+  'freelance' | 'margin',
+  {
+    faqs: Array<[string, string]>
+    howTo: string[]
+    purpose: string
+    related: Array<[string, string]>
+  }
+> = {
+  freelance: {
+    faqs: [
+      [
+        'Why is my freelance hourly rate higher than a salary hourly rate?',
+        'Freelancers usually need to cover taxes, unpaid time, business expenses, admin work, and non-billable hours.',
+      ],
+      [
+        'Should I charge hourly or project-based?',
+        'Hourly rates are useful for estimating baseline value. For repeatable work, project pricing may better reflect outcomes.',
+      ],
+    ],
+    howTo: [
+      'Enter the yearly income you want to keep.',
+      'Add business expenses like software, equipment, and insurance.',
+      'Estimate your tax rate and realistic billable hours.',
+      'Use the hourly and day-rate outputs as a pricing baseline.',
+    ],
+    purpose:
+      'Use this calculator to estimate a sustainable freelance rate based on income goals, expenses, taxes, and billable time.',
+    related: [
+      ['Send a quote with your rate', '/quote-generator'],
+      ['Invoice approved work', '/invoice-generator'],
+      ['Check profit margin', '/profit-margin-calculator'],
+    ],
+  },
+  margin: {
+    faqs: [
+      [
+        'What is profit margin?',
+        'Profit margin is the percentage of selling price left after costs and fees are removed.',
+      ],
+      [
+        'What is the difference between margin and markup?',
+        'Margin compares profit to selling price. Markup compares profit to cost.',
+      ],
+    ],
+    howTo: [
+      'Enter the cost of the product or service.',
+      'Enter the selling price charged to the customer.',
+      'Add transaction, platform, or processing fees.',
+      'Review profit, margin, and markup before pricing the offer.',
+    ],
+    purpose:
+      'Use this calculator to understand whether a product, service, or project price leaves enough profit after costs and fees.',
+    related: [
+      ['Create an invoice', '/invoice-generator'],
+      ['Create a quote', '/quote-generator'],
+      ['Estimate freelance rates', '/freelance-rate-calculator'],
+    ],
+  },
+}
+
 const getDraftKey = (tool: ToolType) => `ledgerlaunch.${tool}.draft.v2`
 
 const getInitialDraft = (tool: ToolType): SavedDraft => {
@@ -417,7 +596,7 @@ function RevenuePanel() {
         <span>Revenue slots</span>
         <strong>Ads + exports + Pro</strong>
       </div>
-      <div className="ad-slot">AdSense-ready placement</div>
+      <div className="ad-slot">Future sponsor or ad space</div>
       <button
         className="revenue-row revenue-button"
         type="button"
@@ -700,7 +879,7 @@ function DocumentTool({ tool }: { tool: ToolType }) {
           </div>
 
           <div className="monetization-strip">
-            <div className="ad-unit">Responsive ad slot</div>
+            <div className="ad-unit">Partner or ad space</div>
             <Link to="/pricing">Remove watermark with Pro export</Link>
           </div>
         </form>
@@ -714,6 +893,7 @@ function DocumentTool({ tool }: { tool: ToolType }) {
           />
         </aside>
       </section>
+      <DocumentSeoSection content={documentSeoContent[tool]} title={copy.documentLabel} />
       <SeoSection />
     </>
   )
@@ -871,6 +1051,44 @@ function DocumentPreview({
   )
 }
 
+function DocumentSeoSection({
+  content,
+  title,
+}: {
+  content: (typeof documentSeoContent)[ToolType]
+  title: string
+}) {
+  return (
+    <section className="content-section">
+      <div className="content-intro">
+        <h2>How to use this {title.toLowerCase()} tool</h2>
+        <p>{content.purpose}</p>
+        <p>{content.who}</p>
+      </div>
+      <div className="content-grid">
+        <article>
+          <h3>Steps</h3>
+          <ol>
+            {content.howTo.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        </article>
+        <article>
+          <h3>Common mistakes</h3>
+          <ul>
+            {content.commonMistakes.map((mistake) => (
+              <li key={mistake}>{mistake}</li>
+            ))}
+          </ul>
+        </article>
+      </div>
+      <FaqList faqs={content.faqs} />
+      <RelatedLinks links={content.related} />
+    </section>
+  )
+}
+
 function ProfitMarginCalculator() {
   const [cost, setCost] = useState(25)
   const [price, setPrice] = useState(60)
@@ -886,6 +1104,7 @@ function ProfitMarginCalculator() {
   return (
     <CalculatorPage
       description="Check product or service profitability after costs and fees."
+      seoKey="margin"
       title="Profit margin calculator"
     >
       <CalculatorFields>
@@ -924,6 +1143,7 @@ function FreelanceRateCalculator() {
   return (
     <CalculatorPage
       description="Estimate what to charge to hit an annual income goal."
+      seoKey="freelance"
       title="Freelance rate calculator"
     >
       <CalculatorFields>
@@ -952,11 +1172,15 @@ function CalculatorPage({
   children,
   description,
   title,
+  seoKey,
 }: {
   children: React.ReactNode
   description: string
+  seoKey: keyof typeof calculatorSeoContent
   title: string
 }) {
+  const content = calculatorSeoContent[seoKey]
+
   return (
     <>
       <section className="hero calculator-hero">
@@ -967,8 +1191,73 @@ function CalculatorPage({
         <RevenuePanel />
       </section>
       <section className="calculator-panel">{children}</section>
+      <CalculatorSeoSection content={content} title={title} />
       <SeoSection />
     </>
+  )
+}
+
+function CalculatorSeoSection({
+  content,
+  title,
+}: {
+  content: (typeof calculatorSeoContent)[keyof typeof calculatorSeoContent]
+  title: string
+}) {
+  return (
+    <section className="content-section">
+      <div className="content-intro">
+        <h2>How to use the {title.toLowerCase()}</h2>
+        <p>{content.purpose}</p>
+      </div>
+      <div className="content-grid">
+        <article>
+          <h3>Steps</h3>
+          <ol>
+            {content.howTo.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        </article>
+        <article>
+          <h3>Why it matters</h3>
+          <p>
+            Better pricing decisions help you avoid undercharging, protect cash
+            flow, and understand whether a project or product is worth taking on.
+          </p>
+        </article>
+      </div>
+      <FaqList faqs={content.faqs} />
+      <RelatedLinks links={content.related} />
+    </section>
+  )
+}
+
+function FaqList({ faqs }: { faqs: Array<[string, string]> }) {
+  return (
+    <div className="faq-grid">
+      {faqs.map(([question, answer]) => (
+        <details key={question}>
+          <summary>{question}</summary>
+          <p>{answer}</p>
+        </details>
+      ))}
+    </div>
+  )
+}
+
+function RelatedLinks({ links }: { links: Array<[string, string]> }) {
+  return (
+    <div className="related-tools">
+      <h3>Related tools</h3>
+      <div>
+        {links.map(([label, href]) => (
+          <Link key={href} to={href}>
+            {label}
+          </Link>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -1078,32 +1367,33 @@ function SeoSection() {
   return (
     <section className="seo-section" id="seo">
       <div>
-        <h2>SEO and AdSense launch pages</h2>
+        <h2>Small business document workflow</h2>
         <p>
-          These pages make the project easier to approve, index, and expand into
-          more monetized tools.
+          BizFormFlow groups related tools so a small business can estimate work,
+          send billing documents, confirm payments, and check pricing without
+          jumping between disconnected apps.
         </p>
       </div>
       <div className="seo-grid">
         <article>
           <h3>Free invoice generator</h3>
           <p>
-            Target searches around invoice templates, PDF invoices, and small
-            business billing.
+            Create a payment request with client details, line items, tax,
+            discounts, notes, and a downloadable PDF.
           </p>
         </article>
         <article>
           <h3>Free quote generator</h3>
           <p>
-            Capture service businesses before the invoice stage and cross-sell
-            Pro exports.
+            Estimate work before a client approves it, then use the same details
+            later when creating an invoice.
           </p>
         </article>
         <article>
-          <h3>How to write business documents</h3>
+          <h3>Pricing calculators</h3>
           <p>
-            Educational content for organic traffic, affiliate links, and
-            internal links to each tool.
+            Check profit margins and freelance rates before sending a quote so
+            every document starts from better numbers.
           </p>
         </article>
       </div>
@@ -1164,24 +1454,40 @@ function PolicyPage({ type }: { type: 'privacy' | 'terms' }) {
       <h1>{isPrivacy ? 'Privacy Policy' : 'Terms of Service'}</h1>
       <p>
         {isPrivacy
-          ? 'Drafts are stored in your browser. Public launch should add the final analytics, advertising, payment, and support disclosures.'
-          : 'LedgerLaunch tools are productivity helpers. Users are responsible for reviewing accuracy before sending documents or making business decisions.'}
+          ? 'BizFormFlow is designed to be useful without requiring an account. Drafts are currently stored in your browser so you can refresh without immediately losing your work.'
+          : 'BizFormFlow tools are productivity helpers for creating business documents and making basic pricing calculations. Users are responsible for reviewing outputs before sending them to clients or relying on them for business decisions.'}
       </p>
       <div className="legal-grid">
         <article>
           <h2>{isPrivacy ? 'Local drafts' : 'Tool accuracy'}</h2>
           <p>
             {isPrivacy
-              ? 'Invoice, quote, and receipt drafts currently stay in local browser storage unless future account sync is added.'
-              : 'Generated outputs should be reviewed for tax, legal, billing, and client-specific requirements.'}
+              ? 'Invoice, quote, and receipt drafts currently stay in local browser storage on the device you use. Clearing browser data may remove saved drafts.'
+              : 'Generated documents and calculator outputs should be checked for tax, legal, billing, currency, and client-specific requirements.'}
           </p>
         </article>
         <article>
           <h2>{isPrivacy ? 'Ads and analytics' : 'Payments'}</h2>
           <p>
             {isPrivacy
-              ? 'AdSense and production analytics should be disclosed here before deployment.'
-              : 'Paid exports and Pro plans will be processed by configured payment providers once merchant accounts are connected.'}
+              ? 'Production analytics, advertising, affiliate links, and payment providers will be disclosed here before they are enabled.'
+              : 'Paid exports and Pro plans will be processed by configured payment providers once checkout is connected. Do not enter payment information until a trusted checkout page is active.'}
+          </p>
+        </article>
+        <article>
+          <h2>{isPrivacy ? 'Contact information' : 'User responsibility'}</h2>
+          <p>
+            {isPrivacy
+              ? 'A dedicated support inbox will be added before paid checkout or advertising is enabled.'
+              : 'You are responsible for confirming that names, addresses, totals, tax rates, dates, and payment terms are correct.'}
+          </p>
+        </article>
+        <article>
+          <h2>{isPrivacy ? 'Future accounts' : 'Availability'}</h2>
+          <p>
+            {isPrivacy
+              ? 'If account sync is added later, this policy should be updated before personal account data is collected.'
+              : 'The service may change as new tools, payment features, analytics, and advertising integrations are added.'}
           </p>
         </article>
       </div>
@@ -1194,8 +1500,9 @@ function ContactPage() {
     <section className="legal-page">
       <h1>Contact</h1>
       <p>
-        Add the real support email before public launch. This page exists now so
-        AdSense and payment-provider readiness have a proper destination.
+        Use this page for support requests, tool feedback, billing questions,
+        partnership ideas, or feature suggestions. A dedicated support inbox
+        should be connected before paid checkout is enabled.
       </p>
       <form className="contact-form">
         <label>
@@ -1211,7 +1518,7 @@ function ContactPage() {
           <textarea placeholder="How can we help?" />
         </label>
         <button type="button" onClick={() => trackEvent('contact_submit_mock', {})}>
-          Save as support lead
+          Prepare support request
         </button>
       </form>
     </section>

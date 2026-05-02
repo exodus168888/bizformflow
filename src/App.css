@@ -516,7 +516,8 @@ th {
 }
 
 .seo-section,
-.legal-section {
+.legal-section,
+.content-section {
   border-top: 1px solid var(--line);
   padding: 46px clamp(18px, 4vw, 56px);
 }
@@ -559,6 +560,94 @@ th {
 .seo-grid h3 {
   font-size: 17px;
   margin: 0 0 8px;
+}
+
+.content-section {
+  display: grid;
+  gap: 24px;
+}
+
+.content-intro {
+  max-width: 900px;
+}
+
+.content-intro h2 {
+  font-size: 34px;
+  line-height: 1.08;
+  margin: 0 0 12px;
+}
+
+.content-intro p {
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.65;
+  margin: 0 0 10px;
+}
+
+.content-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.content-grid article,
+.faq-grid details,
+.related-tools {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 22px;
+}
+
+.content-grid h3,
+.related-tools h3 {
+  margin: 0 0 12px;
+}
+
+.content-grid ol,
+.content-grid ul {
+  color: var(--muted);
+  line-height: 1.65;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.content-grid p {
+  color: var(--muted);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.faq-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.faq-grid summary {
+  cursor: pointer;
+  font-weight: 850;
+}
+
+.faq-grid p {
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 12px 0 0;
+}
+
+.related-tools > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.related-tools a {
+  background: var(--wash);
+  border-radius: 6px;
+  color: var(--ink);
+  font-weight: 800;
+  padding: 10px 12px;
+  text-decoration: none;
 }
 
 .calculator-panel,
@@ -741,6 +830,8 @@ th {
   .seo-section,
   .seo-grid,
   .legal-section,
+  .content-grid,
+  .faq-grid,
   .calculator-fields,
   .result-grid,
   .pricing-grid,
