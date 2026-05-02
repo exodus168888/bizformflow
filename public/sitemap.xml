@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://bizformflow.pages.dev/</loc>
+    <loc>https://bizformflow.com/</loc>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://bizformflow.pages.dev/invoice-generator</loc>
+    <loc>https://bizformflow.com/invoice-generator</loc>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://bizformflow.pages.dev/quote-generator</loc>
+    <loc>https://bizformflow.com/quote-generator</loc>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://bizformflow.pages.dev/receipt-maker</loc>
+    <loc>https://bizformflow.com/receipt-maker</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://bizformflow.pages.dev/profit-margin-calculator</loc>
+    <loc>https://bizformflow.com/profit-margin-calculator</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://bizformflow.pages.dev/freelance-rate-calculator</loc>
+    <loc>https://bizformflow.com/freelance-rate-calculator</loc>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://bizformflow.pages.dev/pricing</loc>
+    <loc>https://bizformflow.com/pricing</loc>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://bizformflow.pages.dev/privacy</loc>
+    <loc>https://bizformflow.com/privacy</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://bizformflow.pages.dev/terms</loc>
+    <loc>https://bizformflow.com/terms</loc>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://bizformflow.pages.dev/contact</loc>
+    <loc>https://bizformflow.com/contact</loc>
     <priority>0.4</priority>
   </url>
 </urlset>

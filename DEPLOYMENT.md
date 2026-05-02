@@ -17,7 +17,7 @@
 ## Before Public Launch
 
 1. Choose a custom domain.
-2. Replace every `https://bizformflow.pages.dev` value after connecting a custom domain:
+2. Replace every `https://bizformflow.com` value after connecting a custom domain:
    - `index.html`
    - `public/robots.txt`
    - `public/sitemap.xml`
@@ -63,7 +63,7 @@ Do not store or paste the PayPal secret in public files or chat. After changing 
 Checkout diagnostics are hidden by default. To show the checkout log while testing, open:
 
 ```text
-https://bizformflow.pages.dev/pricing?debug=1
+https://bizformflow.com/pricing?debug=1
 ```
 
 ## Cloudflare Pages Deploy
@@ -135,7 +135,7 @@ After deployment:
 
 1. Add the domain or URL-prefix property.
 2. Verify ownership.
-3. Submit `https://bizformflow.pages.dev/sitemap.xml` or the sitemap for the custom domain.
+3. Submit `https://bizformflow.com/sitemap.xml` or the sitemap for the custom domain.
 4. Request indexing for the main tool pages.
 
 ## AdSense Readiness Checklist
