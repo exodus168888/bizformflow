@@ -25,6 +25,10 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://bizformflow.com/payment-fee-calculator</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://bizformflow.com/pricing</loc>
     <priority>0.6</priority>
   </url>

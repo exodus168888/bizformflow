@@ -132,6 +132,7 @@ const routeTitles: Record<string, string> = {
   '/contact': 'Contact BizFormFlow',
   '/freelance-rate-calculator': 'Freelance Rate Calculator',
   '/invoice-generator': 'Free Invoice Generator',
+  '/payment-fee-calculator': 'Payment Fee Calculator',
   '/pricing': 'BizFormFlow Pricing',
   '/privacy': 'BizFormFlow Privacy Policy',
   '/profit-margin-calculator': 'Profit Margin Calculator',
@@ -147,6 +148,8 @@ const routeDescriptions: Record<string, string> = {
     'Estimate hourly, daily, monthly, and annual freelance rates from income goals, expenses, taxes, and billable hours.',
   '/invoice-generator':
     'Create a free invoice with line items, discounts, tax, autosave, live totals, and PDF export.',
+  '/payment-fee-calculator':
+    'Calculate PayPal, Stripe, Square, or custom payment processing fees and the gross amount needed to receive a target net payment.',
   '/pricing':
     'Review BizFormFlow paid export, Pro, and Business pricing options for small business tools.',
   '/privacy':
@@ -381,7 +384,7 @@ const documentSeoContent: Record<
 }
 
 const calculatorSeoContent: Record<
-  'freelance' | 'margin',
+  'fees' | 'freelance' | 'margin',
   {
     faqs: Array<[string, string]>
     howTo: string[]
@@ -389,6 +392,31 @@ const calculatorSeoContent: Record<
     related: Array<[string, string]>
   }
 > = {
+  fees: {
+    faqs: [
+      [
+        'Why should I calculate payment processing fees?',
+        'Payment processors usually subtract a percentage fee and a fixed fee from each transaction, so the amount you receive can be lower than the amount charged.',
+      ],
+      [
+        'Can I calculate how much to charge to receive a target amount?',
+        'Yes. Enter your target net amount, fee percentage, and fixed fee to estimate the gross amount to charge before processing fees.',
+      ],
+    ],
+    howTo: [
+      'Choose a common processor or enter a custom percentage and fixed fee.',
+      'Enter the amount you plan to charge a client or customer.',
+      'Enter the net amount you want to receive after fees.',
+      'Review estimated fees, net received, and gross charge needed for the target net amount.',
+    ],
+    purpose:
+      'Use this calculator to estimate payment processing fees and price invoices, quotes, or online payments with fewer surprises.',
+    related: [
+      ['Create an invoice', '/invoice-generator'],
+      ['Create a quote', '/quote-generator'],
+      ['Check profit margin', '/profit-margin-calculator'],
+    ],
+  },
   freelance: {
     faqs: [
       [
@@ -411,7 +439,7 @@ const calculatorSeoContent: Record<
     related: [
       ['Send a quote with your rate', '/quote-generator'],
       ['Invoice approved work', '/invoice-generator'],
-      ['Check profit margin', '/profit-margin-calculator'],
+      ['Estimate payment fees', '/payment-fee-calculator'],
     ],
   },
   margin: {
@@ -436,7 +464,7 @@ const calculatorSeoContent: Record<
     related: [
       ['Create an invoice', '/invoice-generator'],
       ['Create a quote', '/quote-generator'],
-      ['Estimate freelance rates', '/freelance-rate-calculator'],
+      ['Estimate payment fees', '/payment-fee-calculator'],
     ],
   },
 }
@@ -608,6 +636,7 @@ function App() {
           path="/freelance-rate-calculator"
           element={<FreelanceRateCalculator />}
         />
+        <Route path="/payment-fee-calculator" element={<PaymentFeeCalculator />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/privacy" element={<PolicyPage type="privacy" />} />
         <Route path="/terms" element={<PolicyPage type="terms" />} />
@@ -663,6 +692,7 @@ function Header() {
         <NavLink to="/receipt-maker">Receipt</NavLink>
         <NavLink to="/profit-margin-calculator">Margin</NavLink>
         <NavLink to="/freelance-rate-calculator">Freelance</NavLink>
+        <NavLink to="/payment-fee-calculator">Fees</NavLink>
         <NavLink to="/pricing">Pricing</NavLink>
       </nav>
       <Link className="topbar-action" to="/pricing">
@@ -693,6 +723,7 @@ function Footer() {
         <Link to="/receipt-maker">Receipt maker</Link>
         <Link to="/profit-margin-calculator">Profit margin calculator</Link>
         <Link to="/freelance-rate-calculator">Freelance rate calculator</Link>
+        <Link to="/payment-fee-calculator">Payment fee calculator</Link>
       </nav>
       <nav aria-label="Footer business">
         <strong>Business</strong>
@@ -1355,6 +1386,95 @@ function FreelanceRateCalculator() {
   )
 }
 
+const paymentProcessors = {
+  paypal: { fixed: 0.49, label: 'PayPal online', percent: 3.49 },
+  stripe: { fixed: 0.3, label: 'Stripe online', percent: 2.9 },
+  square: { fixed: 0.3, label: 'Square online', percent: 2.9 },
+  custom: { fixed: 0, label: 'Custom fees', percent: 0 },
+}
+
+function PaymentFeeCalculator() {
+  const [processor, setProcessor] =
+    useState<keyof typeof paymentProcessors>('paypal')
+  const [chargeAmount, setChargeAmount] = useState(100)
+  const [targetNet, setTargetNet] = useState(100)
+  const [customPercent, setCustomPercent] = useState(3)
+  const [customFixed, setCustomFixed] = useState(0.3)
+
+  const selected = paymentProcessors[processor]
+  const percentFee = processor === 'custom' ? customPercent : selected.percent
+  const fixedFee = processor === 'custom' ? customFixed : selected.fixed
+
+  const result = useMemo(() => {
+    const percentRate = Math.max(percentFee, 0) / 100
+    const fixed = Math.max(fixedFee, 0)
+    const amount = Math.max(chargeAmount, 0)
+    const fee = amount * percentRate + fixed
+    const netReceived = Math.max(amount - fee, 0)
+    const grossForTarget =
+      percentRate < 1 ? (Math.max(targetNet, 0) + fixed) / (1 - percentRate) : 0
+
+    return {
+      fee,
+      grossForTarget,
+      netReceived,
+      percentRate,
+    }
+  }, [chargeAmount, fixedFee, percentFee, targetNet])
+
+  return (
+    <CalculatorPage
+      description="Estimate payment processor fees, net received, and the gross amount to charge for a target payout."
+      seoKey="fees"
+      title="Payment fee calculator"
+    >
+      <CalculatorFields>
+        <SelectField
+          label="Processor"
+          onChange={(value) =>
+            setProcessor(value as keyof typeof paymentProcessors)
+          }
+          options={Object.entries(paymentProcessors).map(([value, config]) => [
+            value,
+            config.label,
+          ])}
+          value={processor}
+        />
+        <NumberField
+          label="Amount charged"
+          value={chargeAmount}
+          onChange={setChargeAmount}
+        />
+        <NumberField
+          label="Target net"
+          value={targetNet}
+          onChange={setTargetNet}
+        />
+        <NumberField
+          label="Fee %"
+          value={percentFee}
+          onChange={setCustomPercent}
+          disabled={processor !== 'custom'}
+        />
+        <NumberField
+          label="Fixed fee"
+          value={fixedFee}
+          onChange={setCustomFixed}
+          disabled={processor !== 'custom'}
+        />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['Estimated fee', currency.format(result.fee)],
+          ['Net received', currency.format(result.netReceived)],
+          ['Charge for target', currency.format(result.grossForTarget)],
+          ['Effective fee rate', `${(result.fee / Math.max(chargeAmount, 1) * 100).toFixed(2)}%`],
+        ]}
+      />
+    </CalculatorPage>
+  )
+}
+
 function CalculatorPage({
   children,
   description,
@@ -1453,10 +1573,12 @@ function CalculatorFields({ children }: { children: React.ReactNode }) {
 }
 
 function NumberField({
+  disabled = false,
   label,
   onChange,
   value,
 }: {
+  disabled?: boolean
   label: string
   onChange: (value: number) => void
   value: number
@@ -1468,8 +1590,34 @@ function NumberField({
         min="0"
         type="number"
         value={value}
+        disabled={disabled}
         onChange={(event) => onChange(Number(event.target.value))}
       />
+    </label>
+  )
+}
+
+function SelectField({
+  label,
+  onChange,
+  options,
+  value,
+}: {
+  label: string
+  onChange: (value: string) => void
+  options: Array<[string, string]>
+  value: string
+}) {
+  return (
+    <label>
+      {label}
+      <select value={value} onChange={(event) => onChange(event.target.value)}>
+        {options.map(([optionValue, optionLabel]) => (
+          <option key={optionValue} value={optionValue}>
+            {optionLabel}
+          </option>
+        ))}
+      </select>
     </label>
   )
 }
@@ -1852,6 +2000,11 @@ function ToolPortfolio() {
           icon={<Calculator size={18} />}
           label="Freelance rate calculator"
           to="/freelance-rate-calculator"
+        />
+        <ToolCard
+          icon={<BadgeDollarSign size={18} />}
+          label="Payment fee calculator"
+          to="/payment-fee-calculator"
         />
       </div>
     </section>
