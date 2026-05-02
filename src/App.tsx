@@ -129,6 +129,7 @@ const starterItems: LineItem[] = [
 
 const routeTitles: Record<string, string> = {
   '/': 'BizFormFlow Small Business Tools',
+  '/break-even-calculator': 'Break-even Calculator',
   '/contact': 'Contact BizFormFlow',
   '/freelance-rate-calculator': 'Freelance Rate Calculator',
   '/invoice-generator': 'Free Invoice Generator',
@@ -143,6 +144,8 @@ const routeTitles: Record<string, string> = {
 
 const routeDescriptions: Record<string, string> = {
   '/': 'Free small business tools for invoices, quotes, receipts, profit margins, freelance rates, and PDF exports.',
+  '/break-even-calculator':
+    'Calculate break-even units, break-even revenue, and expected profit or loss from fixed costs, variable costs, price, and sales volume.',
   '/contact': 'Contact BizFormFlow for support and partnership inquiries.',
   '/freelance-rate-calculator':
     'Estimate hourly, daily, monthly, and annual freelance rates from income goals, expenses, taxes, and billable hours.',
@@ -384,7 +387,7 @@ const documentSeoContent: Record<
 }
 
 const calculatorSeoContent: Record<
-  'fees' | 'freelance' | 'margin',
+  'breakEven' | 'fees' | 'freelance' | 'margin',
   {
     faqs: Array<[string, string]>
     howTo: string[]
@@ -392,6 +395,31 @@ const calculatorSeoContent: Record<
     related: Array<[string, string]>
   }
 > = {
+  breakEven: {
+    faqs: [
+      [
+        'What does break-even mean?',
+        'Break-even is the point where revenue covers fixed and variable costs, so profit is zero before the business starts earning extra profit.',
+      ],
+      [
+        'Why is contribution margin important?',
+        'Contribution margin is selling price minus variable cost per unit. It shows how much each sale contributes toward fixed costs and profit.',
+      ],
+    ],
+    howTo: [
+      'Enter fixed costs such as rent, software, equipment, or monthly overhead.',
+      'Enter variable cost per unit, such as materials, labor, packaging, or delivery.',
+      'Enter the selling price per unit and expected sales volume.',
+      'Review break-even units, break-even revenue, and expected profit or loss.',
+    ],
+    purpose:
+      'Use this calculator to estimate how many units or client sales are needed before a product, service, or campaign becomes profitable.',
+    related: [
+      ['Check profit margin', '/profit-margin-calculator'],
+      ['Estimate payment fees', '/payment-fee-calculator'],
+      ['Create a quote', '/quote-generator'],
+    ],
+  },
   fees: {
     faqs: [
       [
@@ -631,6 +659,7 @@ function App() {
         <Route path="/invoice-generator" element={<DocumentTool tool="invoice" />} />
         <Route path="/quote-generator" element={<DocumentTool tool="quote" />} />
         <Route path="/receipt-maker" element={<DocumentTool tool="receipt" />} />
+        <Route path="/break-even-calculator" element={<BreakEvenCalculator />} />
         <Route path="/profit-margin-calculator" element={<ProfitMarginCalculator />} />
         <Route
           path="/freelance-rate-calculator"
@@ -690,6 +719,7 @@ function Header() {
         <NavLink to="/invoice-generator">Invoice</NavLink>
         <NavLink to="/quote-generator">Quote</NavLink>
         <NavLink to="/receipt-maker">Receipt</NavLink>
+        <NavLink to="/break-even-calculator">Break-even</NavLink>
         <NavLink to="/profit-margin-calculator">Margin</NavLink>
         <NavLink to="/freelance-rate-calculator">Freelance</NavLink>
         <NavLink to="/payment-fee-calculator">Fees</NavLink>
@@ -721,6 +751,7 @@ function Footer() {
         <Link to="/invoice-generator">Invoice generator</Link>
         <Link to="/quote-generator">Quote generator</Link>
         <Link to="/receipt-maker">Receipt maker</Link>
+        <Link to="/break-even-calculator">Break-even calculator</Link>
         <Link to="/profit-margin-calculator">Profit margin calculator</Link>
         <Link to="/freelance-rate-calculator">Freelance rate calculator</Link>
         <Link to="/payment-fee-calculator">Payment fee calculator</Link>
@@ -1304,6 +1335,69 @@ function DocumentSeoSection({
       <FaqList faqs={content.faqs} />
       <RelatedLinks links={content.related} />
     </section>
+  )
+}
+
+function BreakEvenCalculator() {
+  const [fixedCosts, setFixedCosts] = useState(5000)
+  const [variableCost, setVariableCost] = useState(18)
+  const [sellingPrice, setSellingPrice] = useState(45)
+  const [expectedUnits, setExpectedUnits] = useState(250)
+
+  const result = useMemo(() => {
+    const contribution = sellingPrice - variableCost
+    const breakEvenUnits =
+      contribution > 0 ? Math.ceil(fixedCosts / contribution) : 0
+    const breakEvenRevenue = breakEvenUnits * sellingPrice
+    const expectedRevenue = expectedUnits * sellingPrice
+    const expectedVariableCosts = expectedUnits * variableCost
+    const expectedProfit = expectedRevenue - expectedVariableCosts - fixedCosts
+
+    return {
+      breakEvenRevenue,
+      breakEvenUnits,
+      contribution,
+      expectedProfit,
+    }
+  }, [expectedUnits, fixedCosts, sellingPrice, variableCost])
+
+  return (
+    <CalculatorPage
+      description="Find the sales volume and revenue needed to cover fixed costs, variable costs, and expected sales."
+      seoKey="breakEven"
+      title="Break-even calculator"
+    >
+      <CalculatorFields>
+        <NumberField
+          label="Fixed costs"
+          value={fixedCosts}
+          onChange={setFixedCosts}
+        />
+        <NumberField
+          label="Variable cost/unit"
+          value={variableCost}
+          onChange={setVariableCost}
+        />
+        <NumberField
+          label="Selling price/unit"
+          value={sellingPrice}
+          onChange={setSellingPrice}
+        />
+        <NumberField
+          label="Expected units"
+          value={expectedUnits}
+          onChange={setExpectedUnits}
+        />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['Break-even units', result.breakEvenUnits.toLocaleString()],
+          ['Break-even revenue', currency.format(result.breakEvenRevenue)],
+          ['Contribution/unit', currency.format(result.contribution)],
+          ['Expected profit', currency.format(result.expectedProfit)],
+        ]}
+      />
+    </CalculatorPage>
   )
 }
 
@@ -1991,6 +2085,11 @@ function ToolPortfolio() {
         <ToolCard icon={<FileText size={18} />} label="Invoice generator" to="/invoice-generator" />
         <ToolCard icon={<FileText size={18} />} label="Quote generator" to="/quote-generator" />
         <ToolCard icon={<ReceiptText size={18} />} label="Receipt maker" to="/receipt-maker" />
+        <ToolCard
+          icon={<Calculator size={18} />}
+          label="Break-even calculator"
+          to="/break-even-calculator"
+        />
         <ToolCard
           icon={<Calculator size={18} />}
           label="Profit margin calculator"
