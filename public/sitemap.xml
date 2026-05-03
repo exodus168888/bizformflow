@@ -21,7 +21,43 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://bizformflow.com/cash-flow-calculator</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bizformflow.com/contractor-pay-calculator</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bizformflow.com/discount-calculator</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://bizformflow.com/profit-margin-calculator</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bizformflow.com/markup-calculator</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bizformflow.com/roi-calculator</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bizformflow.com/loan-payment-calculator</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bizformflow.com/late-fee-calculator</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bizformflow.com/net-30-due-date-calculator</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bizformflow.com/hourly-to-salary-calculator</loc>
     <priority>0.8</priority>
   </url>
   <url>
@@ -34,6 +70,18 @@
   </url>
   <url>
     <loc>https://bizformflow.com/sales-tax-calculator</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bizformflow.com/vat-calculator</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bizformflow.com/service-charge-calculator</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bizformflow.com/purchase-order-generator</loc>
     <priority>0.8</priority>
   </url>
   <url>

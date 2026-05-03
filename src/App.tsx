@@ -130,28 +130,56 @@ const starterItems: LineItem[] = [
 const routeTitles: Record<string, string> = {
   '/': 'BizFormFlow Small Business Tools',
   '/break-even-calculator': 'Break-even Calculator',
+  '/cash-flow-calculator': 'Cash Flow Calculator',
   '/contact': 'Contact BizFormFlow',
+  '/contractor-pay-calculator': 'Contractor Pay Calculator',
+  '/discount-calculator': 'Discount Calculator',
   '/freelance-rate-calculator': 'Freelance Rate Calculator',
+  '/hourly-to-salary-calculator': 'Hourly to Salary Calculator',
   '/invoice-generator': 'Free Invoice Generator',
+  '/late-fee-calculator': 'Late Fee Calculator',
+  '/loan-payment-calculator': 'Loan Payment Calculator',
+  '/markup-calculator': 'Markup Calculator',
+  '/net-30-due-date-calculator': 'Net 30 Due Date Calculator',
   '/payment-fee-calculator': 'Payment Fee Calculator',
   '/pricing': 'BizFormFlow Pricing',
   '/privacy': 'BizFormFlow Privacy Policy',
   '/profit-margin-calculator': 'Profit Margin Calculator',
+  '/purchase-order-generator': 'Purchase Order Generator',
   '/quote-generator': 'Free Quote Generator',
   '/receipt-maker': 'Receipt Maker',
+  '/roi-calculator': 'ROI Calculator',
   '/sales-tax-calculator': 'Sales Tax Calculator',
+  '/service-charge-calculator': 'Service Charge Calculator',
   '/terms': 'BizFormFlow Terms',
+  '/vat-calculator': 'VAT Calculator',
 }
 
 const routeDescriptions: Record<string, string> = {
   '/': 'Free small business tools for invoices, quotes, receipts, profit margins, freelance rates, and PDF exports.',
   '/break-even-calculator':
     'Calculate break-even units, break-even revenue, and expected profit or loss from fixed costs, variable costs, price, and sales volume.',
+  '/cash-flow-calculator':
+    'Calculate net cash flow and ending cash from starting balance, cash inflows, outflows, and monthly burn.',
   '/contact': 'Contact BizFormFlow for support and partnership inquiries.',
+  '/contractor-pay-calculator':
+    'Estimate contractor gross pay, platform fees, reimbursable expenses, and net pay from hourly rate and hours worked.',
+  '/discount-calculator':
+    'Calculate discount amount, sale price, tax, and final total from original price, discount rate, quantity, and tax rate.',
   '/freelance-rate-calculator':
     'Estimate hourly, daily, monthly, and annual freelance rates from income goals, expenses, taxes, and billable hours.',
+  '/hourly-to-salary-calculator':
+    'Convert hourly rate to weekly, monthly, and annual salary based on hours per week and paid weeks per year.',
   '/invoice-generator':
     'Create a free invoice with line items, discounts, tax, autosave, live totals, and PDF export.',
+  '/late-fee-calculator':
+    'Calculate invoice late fees and total due from invoice amount, days late, percentage fee, daily fee, and fixed fee.',
+  '/loan-payment-calculator':
+    'Estimate monthly loan payment, total paid, and total interest from principal, interest rate, and loan term.',
+  '/markup-calculator':
+    'Calculate selling price, profit, margin, and markup from cost, markup percentage, and extra fees.',
+  '/net-30-due-date-calculator':
+    'Calculate invoice due dates for Net 7, Net 15, Net 30, Net 45, or Net 60 payment terms.',
   '/payment-fee-calculator':
     'Calculate PayPal, Stripe, Square, or custom payment processing fees and the gross amount needed to receive a target net payment.',
   '/pricing':
@@ -160,14 +188,22 @@ const routeDescriptions: Record<string, string> = {
     'Read how BizFormFlow handles local drafts, analytics, ads, and payment disclosures.',
   '/profit-margin-calculator':
     'Calculate profit, margin, and markup from product cost, selling price, and fees.',
+  '/purchase-order-generator':
+    'Create a simple purchase order total with supplier, PO number, quantity, unit cost, shipping, and tax.',
   '/quote-generator':
     'Create a free quote or estimate with line items, discounts, tax, autosave, live totals, and PDF export.',
   '/receipt-maker':
     'Create a free receipt with line items, payment details, live totals, and PDF export.',
+  '/roi-calculator':
+    'Calculate return on investment, net gain, and ROI percentage from investment cost, revenue, and extra costs.',
   '/sales-tax-calculator':
     'Calculate sales tax, total price, and reverse tax from a tax-included amount for invoices, quotes, receipts, and product pricing.',
+  '/service-charge-calculator':
+    'Calculate service charges, tax, and final total for invoices, bills, events, and service transactions.',
   '/terms':
     'Read the BizFormFlow terms for using small business productivity tools.',
+  '/vat-calculator':
+    'Calculate VAT amount, gross total, and VAT-exclusive amount from net or VAT-included prices.',
 }
 
 const siteOrigin =
@@ -390,7 +426,23 @@ const documentSeoContent: Record<
 }
 
 const calculatorSeoContent: Record<
-  'breakEven' | 'fees' | 'freelance' | 'margin' | 'salesTax',
+  | 'breakEven'
+  | 'cashFlow'
+  | 'contractorPay'
+  | 'discount'
+  | 'fees'
+  | 'freelance'
+  | 'hourlySalary'
+  | 'lateFee'
+  | 'loan'
+  | 'margin'
+  | 'markup'
+  | 'net30'
+  | 'purchaseOrder'
+  | 'roi'
+  | 'salesTax'
+  | 'serviceCharge'
+  | 'vat',
   {
     faqs: Array<[string, string]>
     howTo: string[]
@@ -423,6 +475,63 @@ const calculatorSeoContent: Record<
       ['Create a quote', '/quote-generator'],
     ],
   },
+  cashFlow: {
+    faqs: [
+      ['What is net cash flow?', 'Net cash flow is cash received minus cash spent during a period.'],
+      ['Why track ending cash?', 'Ending cash helps you see whether the business can cover upcoming bills and operating expenses.'],
+    ],
+    howTo: [
+      'Enter the starting cash balance.',
+      'Add expected cash coming in.',
+      'Add expected cash going out.',
+      'Review net cash flow and ending cash.',
+    ],
+    purpose:
+      'Use this calculator to quickly estimate whether a week or month leaves the business with more or less cash.',
+    related: [
+      ['Create an invoice', '/invoice-generator'],
+      ['Check break-even point', '/break-even-calculator'],
+      ['Estimate payment fees', '/payment-fee-calculator'],
+    ],
+  },
+  contractorPay: {
+    faqs: [
+      ['What should contractor pay include?', 'Contractor pay should include hours worked, hourly rate, reimbursable expenses, and any platform or processing fees.'],
+      ['Is contractor pay the same as employee salary?', 'No. Contractors usually handle their own taxes, insurance, benefits, and unpaid time.'],
+    ],
+    howTo: [
+      'Enter the hourly rate and hours worked.',
+      'Add reimbursable expenses.',
+      'Add any platform or processing fee percentage.',
+      'Review gross pay, fees, and net pay.',
+    ],
+    purpose:
+      'Use this calculator to estimate contractor pay before approving work, creating a quote, or preparing an invoice.',
+    related: [
+      ['Estimate freelance rates', '/freelance-rate-calculator'],
+      ['Create an invoice', '/invoice-generator'],
+      ['Calculate payment fees', '/payment-fee-calculator'],
+    ],
+  },
+  discount: {
+    faqs: [
+      ['How do I calculate a discount?', 'Multiply the original price by the discount percentage, then subtract that amount from the original price.'],
+      ['Can I include tax after a discount?', 'Yes. Apply the discount first, then calculate tax on the discounted subtotal when that matches your local rules.'],
+    ],
+    howTo: [
+      'Enter the original price.',
+      'Enter the discount percentage and quantity.',
+      'Add a tax rate if needed.',
+      'Review sale price, discount amount, tax, and final total.',
+    ],
+    purpose:
+      'Use this calculator to estimate sale prices, invoice discounts, quote discounts, and final totals after tax.',
+    related: [
+      ['Create a quote', '/quote-generator'],
+      ['Create an invoice', '/invoice-generator'],
+      ['Calculate sales tax', '/sales-tax-calculator'],
+    ],
+  },
   fees: {
     faqs: [
       [
@@ -448,6 +557,139 @@ const calculatorSeoContent: Record<
       ['Check profit margin', '/profit-margin-calculator'],
     ],
   },
+  hourlySalary: {
+    faqs: [
+      ['How do I convert hourly pay to annual salary?', 'Multiply hourly rate by hours per week, then multiply by paid weeks per year.'],
+      ['Should I include unpaid weeks?', 'Use the number of paid weeks you realistically work or bill each year for a better estimate.'],
+    ],
+    howTo: [
+      'Enter the hourly rate.',
+      'Enter hours worked per week.',
+      'Enter paid weeks per year.',
+      'Review weekly, monthly, and annual equivalents.',
+    ],
+    purpose:
+      'Use this calculator to compare hourly rates with weekly, monthly, and annual income.',
+    related: [
+      ['Estimate freelance rates', '/freelance-rate-calculator'],
+      ['Calculate contractor pay', '/contractor-pay-calculator'],
+      ['Create a quote', '/quote-generator'],
+    ],
+  },
+  lateFee: {
+    faqs: [
+      ['How are late fees calculated?', 'Late fees may be a percentage, fixed amount, daily charge, or a combination depending on your payment terms.'],
+      ['Should late fees be listed on invoices?', 'Yes. Payment terms and late fee policies should be clear before charging a client.'],
+    ],
+    howTo: [
+      'Enter the invoice amount.',
+      'Enter the number of days late.',
+      'Add percentage, fixed, or daily late fees.',
+      'Review the late fee and total due.',
+    ],
+    purpose:
+      'Use this calculator to estimate late payment charges before following up on overdue invoices.',
+    related: [
+      ['Create an invoice', '/invoice-generator'],
+      ['Calculate Net 30 dates', '/net-30-due-date-calculator'],
+      ['Create a receipt', '/receipt-maker'],
+    ],
+  },
+  loan: {
+    faqs: [
+      ['How is a monthly loan payment calculated?', 'Loan payments are estimated from principal, interest rate, and term using a standard amortization formula.'],
+      ['Does this include taxes or fees?', 'No. Add lender fees, insurance, taxes, or other costs separately when comparing offers.'],
+    ],
+    howTo: [
+      'Enter the loan amount.',
+      'Enter the annual interest rate.',
+      'Enter the term in years.',
+      'Review monthly payment, total paid, and interest.',
+    ],
+    purpose:
+      'Use this calculator to estimate loan payments before financing equipment, inventory, or business expenses.',
+    related: [
+      ['Check cash flow', '/cash-flow-calculator'],
+      ['Calculate ROI', '/roi-calculator'],
+      ['Check break-even point', '/break-even-calculator'],
+    ],
+  },
+  markup: {
+    faqs: [
+      ['What is markup?', 'Markup is profit compared with cost, usually shown as a percentage added on top of cost.'],
+      ['How is markup different from margin?', 'Markup compares profit to cost. Margin compares profit to selling price.'],
+    ],
+    howTo: [
+      'Enter cost.',
+      'Enter markup percentage.',
+      'Add extra fees if needed.',
+      'Review selling price, profit, and margin.',
+    ],
+    purpose:
+      'Use this calculator to turn costs into selling prices and understand the margin created by a markup.',
+    related: [
+      ['Check profit margin', '/profit-margin-calculator'],
+      ['Create a quote', '/quote-generator'],
+      ['Calculate discount', '/discount-calculator'],
+    ],
+  },
+  net30: {
+    faqs: [
+      ['What does Net 30 mean?', 'Net 30 means payment is due 30 days after the invoice date.'],
+      ['Can I calculate other net terms?', 'Yes. Use the terms field for Net 7, Net 15, Net 30, Net 45, Net 60, or another number of days.'],
+    ],
+    howTo: [
+      'Enter the invoice date.',
+      'Enter the number of net payment days.',
+      'Review the due date.',
+      'Use the date on invoices or payment reminders.',
+    ],
+    purpose:
+      'Use this calculator to set clear payment due dates for invoices and client follow-ups.',
+    related: [
+      ['Create an invoice', '/invoice-generator'],
+      ['Calculate late fees', '/late-fee-calculator'],
+      ['Create a receipt', '/receipt-maker'],
+    ],
+  },
+  purchaseOrder: {
+    faqs: [
+      ['What is a purchase order?', 'A purchase order records what a buyer intends to purchase from a supplier, including quantities, costs, and totals.'],
+      ['Is this a full procurement system?', 'No. It is a lightweight purchase order helper for estimating and documenting simple orders.'],
+    ],
+    howTo: [
+      'Enter supplier and PO details.',
+      'Add quantity, unit cost, shipping, and tax.',
+      'Review subtotal, tax, and order total.',
+      'Use the summary before sending or storing the order.',
+    ],
+    purpose:
+      'Use this generator to draft a simple purchase order total for supplies, inventory, or vendor purchases.',
+    related: [
+      ['Create a receipt', '/receipt-maker'],
+      ['Check cash flow', '/cash-flow-calculator'],
+      ['Calculate sales tax', '/sales-tax-calculator'],
+    ],
+  },
+  roi: {
+    faqs: [
+      ['What is ROI?', 'ROI compares net gain with investment cost to show the return as a percentage.'],
+      ['What costs should I include?', 'Include ad spend, software, labor, fees, and other costs tied to the investment.'],
+    ],
+    howTo: [
+      'Enter the investment cost.',
+      'Enter revenue or value returned.',
+      'Add extra costs if needed.',
+      'Review net gain and ROI percentage.',
+    ],
+    purpose:
+      'Use this calculator to compare campaigns, purchases, projects, and business investments.',
+    related: [
+      ['Check break-even point', '/break-even-calculator'],
+      ['Check profit margin', '/profit-margin-calculator'],
+      ['Calculate loan payments', '/loan-payment-calculator'],
+    ],
+  },
   salesTax: {
     faqs: [
       [
@@ -471,6 +713,44 @@ const calculatorSeoContent: Record<
       ['Create an invoice', '/invoice-generator'],
       ['Create a receipt', '/receipt-maker'],
       ['Check profit margin', '/profit-margin-calculator'],
+    ],
+  },
+  serviceCharge: {
+    faqs: [
+      ['What is a service charge?', 'A service charge is an added percentage or fee applied to a bill, invoice, event, or service transaction.'],
+      ['Is a service charge the same as tax?', 'No. A service charge is added by the business, while tax is usually required by a tax authority.'],
+    ],
+    howTo: [
+      'Enter the bill or invoice amount.',
+      'Enter the service charge percentage.',
+      'Add tax if needed.',
+      'Review service charge, tax, and final total.',
+    ],
+    purpose:
+      'Use this calculator to estimate service charges and final totals for client work, events, invoices, and bills.',
+    related: [
+      ['Create an invoice', '/invoice-generator'],
+      ['Calculate sales tax', '/sales-tax-calculator'],
+      ['Create a receipt', '/receipt-maker'],
+    ],
+  },
+  vat: {
+    faqs: [
+      ['How do I calculate VAT?', 'Multiply the net price by the VAT rate, then add the VAT amount to get the gross price.'],
+      ['How do I remove VAT from a VAT-included price?', 'Divide the gross price by one plus the VAT rate to estimate the net price.'],
+    ],
+    howTo: [
+      'Enter the net amount.',
+      'Enter the VAT rate.',
+      'Optionally enter a VAT-included gross amount.',
+      'Review VAT amount, gross total, and VAT-exclusive amount.',
+    ],
+    purpose:
+      'Use this calculator to estimate VAT for quotes, invoices, receipts, and VAT-included product prices.',
+    related: [
+      ['Create an invoice', '/invoice-generator'],
+      ['Create a quote', '/quote-generator'],
+      ['Calculate sales tax', '/sales-tax-calculator'],
     ],
   },
   freelance: {
@@ -688,13 +968,25 @@ function App() {
         <Route path="/quote-generator" element={<DocumentTool tool="quote" />} />
         <Route path="/receipt-maker" element={<DocumentTool tool="receipt" />} />
         <Route path="/break-even-calculator" element={<BreakEvenCalculator />} />
+        <Route path="/cash-flow-calculator" element={<CashFlowCalculator />} />
+        <Route path="/contractor-pay-calculator" element={<ContractorPayCalculator />} />
+        <Route path="/discount-calculator" element={<DiscountCalculator />} />
+        <Route path="/hourly-to-salary-calculator" element={<HourlyToSalaryCalculator />} />
+        <Route path="/late-fee-calculator" element={<LateFeeCalculator />} />
+        <Route path="/loan-payment-calculator" element={<LoanPaymentCalculator />} />
+        <Route path="/markup-calculator" element={<MarkupCalculator />} />
+        <Route path="/net-30-due-date-calculator" element={<Net30DueDateCalculator />} />
         <Route path="/profit-margin-calculator" element={<ProfitMarginCalculator />} />
+        <Route path="/purchase-order-generator" element={<PurchaseOrderGenerator />} />
+        <Route path="/roi-calculator" element={<RoiCalculator />} />
         <Route
           path="/freelance-rate-calculator"
           element={<FreelanceRateCalculator />}
         />
         <Route path="/payment-fee-calculator" element={<PaymentFeeCalculator />} />
         <Route path="/sales-tax-calculator" element={<SalesTaxCalculator />} />
+        <Route path="/service-charge-calculator" element={<ServiceChargeCalculator />} />
+        <Route path="/vat-calculator" element={<VatCalculator />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/privacy" element={<PolicyPage type="privacy" />} />
         <Route path="/terms" element={<PolicyPage type="terms" />} />
@@ -782,10 +1074,22 @@ function Footer() {
         <Link to="/quote-generator">Quote generator</Link>
         <Link to="/receipt-maker">Receipt maker</Link>
         <Link to="/break-even-calculator">Break-even calculator</Link>
+        <Link to="/cash-flow-calculator">Cash flow calculator</Link>
+        <Link to="/contractor-pay-calculator">Contractor pay calculator</Link>
+        <Link to="/discount-calculator">Discount calculator</Link>
+        <Link to="/hourly-to-salary-calculator">Hourly to salary calculator</Link>
+        <Link to="/late-fee-calculator">Late fee calculator</Link>
+        <Link to="/loan-payment-calculator">Loan payment calculator</Link>
+        <Link to="/markup-calculator">Markup calculator</Link>
+        <Link to="/net-30-due-date-calculator">Net 30 due date calculator</Link>
         <Link to="/profit-margin-calculator">Profit margin calculator</Link>
+        <Link to="/purchase-order-generator">Purchase order generator</Link>
+        <Link to="/roi-calculator">ROI calculator</Link>
         <Link to="/freelance-rate-calculator">Freelance rate calculator</Link>
         <Link to="/payment-fee-calculator">Payment fee calculator</Link>
         <Link to="/sales-tax-calculator">Sales tax calculator</Link>
+        <Link to="/service-charge-calculator">Service charge calculator</Link>
+        <Link to="/vat-calculator">VAT calculator</Link>
       </nav>
       <nav aria-label="Footer business">
         <strong>Business</strong>
@@ -1649,6 +1953,433 @@ function SalesTaxCalculator() {
   )
 }
 
+function DiscountCalculator() {
+  const [price, setPrice] = useState(120)
+  const [discountRate, setDiscountRate] = useState(20)
+  const [quantity, setQuantity] = useState(2)
+  const [taxRate, setTaxRate] = useState(8)
+
+  const result = useMemo(() => {
+    const originalTotal = price * quantity
+    const discountAmount = originalTotal * (discountRate / 100)
+    const discountedSubtotal = Math.max(originalTotal - discountAmount, 0)
+    const tax = discountedSubtotal * (taxRate / 100)
+    return { discountAmount, discountedSubtotal, finalTotal: discountedSubtotal + tax, tax }
+  }, [discountRate, price, quantity, taxRate])
+
+  return (
+    <CalculatorPage
+      description="Calculate sale price, discount amount, tax, and final total from price, quantity, and discount rate."
+      seoKey="discount"
+      title="Discount calculator"
+    >
+      <CalculatorFields>
+        <NumberField label="Original price" value={price} onChange={setPrice} />
+        <NumberField label="Discount %" value={discountRate} onChange={setDiscountRate} />
+        <NumberField label="Quantity" value={quantity} onChange={setQuantity} />
+        <NumberField label="Tax %" value={taxRate} onChange={setTaxRate} />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['Discount amount', currency.format(result.discountAmount)],
+          ['Sale subtotal', currency.format(result.discountedSubtotal)],
+          ['Tax', currency.format(result.tax)],
+          ['Final total', currency.format(result.finalTotal)],
+        ]}
+      />
+    </CalculatorPage>
+  )
+}
+
+function MarkupCalculator() {
+  const [cost, setCost] = useState(50)
+  const [markupRate, setMarkupRate] = useState(40)
+  const [fees, setFees] = useState(3)
+
+  const result = useMemo(() => {
+    const sellingPrice = cost * (1 + markupRate / 100) + fees
+    const profit = sellingPrice - cost - fees
+    const margin = sellingPrice > 0 ? (profit / sellingPrice) * 100 : 0
+    return { margin, profit, sellingPrice }
+  }, [cost, fees, markupRate])
+
+  return (
+    <CalculatorPage
+      description="Turn cost into selling price and compare markup with final profit margin."
+      seoKey="markup"
+      title="Markup calculator"
+    >
+      <CalculatorFields>
+        <NumberField label="Cost" value={cost} onChange={setCost} />
+        <NumberField label="Markup %" value={markupRate} onChange={setMarkupRate} />
+        <NumberField label="Extra fees" value={fees} onChange={setFees} />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['Selling price', currency.format(result.sellingPrice)],
+          ['Profit', currency.format(result.profit)],
+          ['Margin', `${result.margin.toFixed(1)}%`],
+          ['Markup', `${markupRate.toFixed(1)}%`],
+        ]}
+      />
+    </CalculatorPage>
+  )
+}
+
+function RoiCalculator() {
+  const [investment, setInvestment] = useState(1000)
+  const [returnValue, setReturnValue] = useState(1600)
+  const [extraCosts, setExtraCosts] = useState(150)
+
+  const result = useMemo(() => {
+    const totalCost = investment + extraCosts
+    const netGain = returnValue - totalCost
+    const roi = totalCost > 0 ? (netGain / totalCost) * 100 : 0
+    return { netGain, roi, totalCost }
+  }, [extraCosts, investment, returnValue])
+
+  return (
+    <CalculatorPage
+      description="Calculate net gain and return on investment for projects, campaigns, or business purchases."
+      seoKey="roi"
+      title="ROI calculator"
+    >
+      <CalculatorFields>
+        <NumberField label="Investment" value={investment} onChange={setInvestment} />
+        <NumberField label="Return value" value={returnValue} onChange={setReturnValue} />
+        <NumberField label="Extra costs" value={extraCosts} onChange={setExtraCosts} />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['Total cost', currency.format(result.totalCost)],
+          ['Net gain', currency.format(result.netGain)],
+          ['ROI', `${result.roi.toFixed(1)}%`],
+        ]}
+      />
+    </CalculatorPage>
+  )
+}
+
+function CashFlowCalculator() {
+  const [startingCash, setStartingCash] = useState(10000)
+  const [cashIn, setCashIn] = useState(6500)
+  const [cashOut, setCashOut] = useState(4200)
+  const [monthlyBurn, setMonthlyBurn] = useState(3000)
+
+  const result = useMemo(() => {
+    const netCashFlow = cashIn - cashOut
+    const endingCash = startingCash + netCashFlow
+    const runway = monthlyBurn > 0 ? endingCash / monthlyBurn : 0
+    return { endingCash, netCashFlow, runway }
+  }, [cashIn, cashOut, monthlyBurn, startingCash])
+
+  return (
+    <CalculatorPage
+      description="Estimate net cash flow, ending cash, and runway from cash coming in and going out."
+      seoKey="cashFlow"
+      title="Cash flow calculator"
+    >
+      <CalculatorFields>
+        <NumberField label="Starting cash" value={startingCash} onChange={setStartingCash} />
+        <NumberField label="Cash in" value={cashIn} onChange={setCashIn} />
+        <NumberField label="Cash out" value={cashOut} onChange={setCashOut} />
+        <NumberField label="Monthly burn" value={monthlyBurn} onChange={setMonthlyBurn} />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['Net cash flow', currency.format(result.netCashFlow)],
+          ['Ending cash', currency.format(result.endingCash)],
+          ['Runway', `${result.runway.toFixed(1)} months`],
+        ]}
+      />
+    </CalculatorPage>
+  )
+}
+
+function LoanPaymentCalculator() {
+  const [principal, setPrincipal] = useState(25000)
+  const [annualRate, setAnnualRate] = useState(8)
+  const [years, setYears] = useState(5)
+
+  const result = useMemo(() => {
+    const months = Math.max(years * 12, 1)
+    const monthlyRate = annualRate / 100 / 12
+    const monthlyPayment =
+      monthlyRate > 0
+        ? (principal * monthlyRate) / (1 - (1 + monthlyRate) ** -months)
+        : principal / months
+    const totalPaid = monthlyPayment * months
+    return { monthlyPayment, totalInterest: totalPaid - principal, totalPaid }
+  }, [annualRate, principal, years])
+
+  return (
+    <CalculatorPage
+      description="Estimate monthly payment, total paid, and total interest for a business loan."
+      seoKey="loan"
+      title="Loan payment calculator"
+    >
+      <CalculatorFields>
+        <NumberField label="Loan amount" value={principal} onChange={setPrincipal} />
+        <NumberField label="Annual rate %" value={annualRate} onChange={setAnnualRate} />
+        <NumberField label="Term years" value={years} onChange={setYears} />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['Monthly payment', currency.format(result.monthlyPayment)],
+          ['Total paid', currency.format(result.totalPaid)],
+          ['Total interest', currency.format(result.totalInterest)],
+        ]}
+      />
+    </CalculatorPage>
+  )
+}
+
+function LateFeeCalculator() {
+  const [invoiceAmount, setInvoiceAmount] = useState(1200)
+  const [daysLate, setDaysLate] = useState(14)
+  const [percentFee, setPercentFee] = useState(3)
+  const [fixedFee, setFixedFee] = useState(25)
+  const [dailyFee, setDailyFee] = useState(2)
+
+  const result = useMemo(() => {
+    const lateFee = invoiceAmount * (percentFee / 100) + fixedFee + dailyFee * daysLate
+    return { lateFee, totalDue: invoiceAmount + lateFee }
+  }, [dailyFee, daysLate, fixedFee, invoiceAmount, percentFee])
+
+  return (
+    <CalculatorPage
+      description="Estimate late payment charges and total amount due for overdue invoices."
+      seoKey="lateFee"
+      title="Late fee calculator"
+    >
+      <CalculatorFields>
+        <NumberField label="Invoice amount" value={invoiceAmount} onChange={setInvoiceAmount} />
+        <NumberField label="Days late" value={daysLate} onChange={setDaysLate} />
+        <NumberField label="Late fee %" value={percentFee} onChange={setPercentFee} />
+        <NumberField label="Fixed fee" value={fixedFee} onChange={setFixedFee} />
+        <NumberField label="Daily fee" value={dailyFee} onChange={setDailyFee} />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['Late fee', currency.format(result.lateFee)],
+          ['Total due', currency.format(result.totalDue)],
+        ]}
+      />
+    </CalculatorPage>
+  )
+}
+
+function Net30DueDateCalculator() {
+  const [invoiceDate, setInvoiceDate] = useState(formatDate(today))
+  const [netDays, setNetDays] = useState(30)
+
+  const result = useMemo(() => {
+    const due = new Date(`${invoiceDate}T00:00:00`)
+    due.setDate(due.getDate() + netDays)
+    const daysFromToday = Math.ceil(
+      (due.getTime() - new Date(formatDate(today)).getTime()) / 86400000,
+    )
+    return { daysFromToday, dueDate: formatDate(due) }
+  }, [invoiceDate, netDays])
+
+  return (
+    <CalculatorPage
+      description="Calculate invoice due dates for Net 7, Net 15, Net 30, Net 45, Net 60, or custom payment terms."
+      seoKey="net30"
+      title="Net 30 due date calculator"
+    >
+      <CalculatorFields>
+        <DateField label="Invoice date" value={invoiceDate} onChange={setInvoiceDate} />
+        <NumberField label="Net days" value={netDays} onChange={setNetDays} />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['Due date', displayDate(result.dueDate)],
+          ['Days from today', `${result.daysFromToday}`],
+        ]}
+      />
+    </CalculatorPage>
+  )
+}
+
+function HourlyToSalaryCalculator() {
+  const [hourlyRate, setHourlyRate] = useState(35)
+  const [hoursPerWeek, setHoursPerWeek] = useState(40)
+  const [weeksPerYear, setWeeksPerYear] = useState(52)
+
+  const result = useMemo(() => {
+    const weekly = hourlyRate * hoursPerWeek
+    const annual = weekly * weeksPerYear
+    return { annual, monthly: annual / 12, weekly }
+  }, [hourlyRate, hoursPerWeek, weeksPerYear])
+
+  return (
+    <CalculatorPage
+      description="Convert hourly pay into weekly, monthly, and annual income estimates."
+      seoKey="hourlySalary"
+      title="Hourly to salary calculator"
+    >
+      <CalculatorFields>
+        <NumberField label="Hourly rate" value={hourlyRate} onChange={setHourlyRate} />
+        <NumberField label="Hours/week" value={hoursPerWeek} onChange={setHoursPerWeek} />
+        <NumberField label="Weeks/year" value={weeksPerYear} onChange={setWeeksPerYear} />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['Weekly pay', currency.format(result.weekly)],
+          ['Monthly pay', currency.format(result.monthly)],
+          ['Annual pay', currency.format(result.annual)],
+        ]}
+      />
+    </CalculatorPage>
+  )
+}
+
+function ContractorPayCalculator() {
+  const [hourlyRate, setHourlyRate] = useState(65)
+  const [hoursWorked, setHoursWorked] = useState(32)
+  const [expenses, setExpenses] = useState(120)
+  const [feeRate, setFeeRate] = useState(3)
+
+  const result = useMemo(() => {
+    const grossPay = hourlyRate * hoursWorked + expenses
+    const platformFee = grossPay * (feeRate / 100)
+    return { grossPay, netPay: grossPay - platformFee, platformFee }
+  }, [expenses, feeRate, hourlyRate, hoursWorked])
+
+  return (
+    <CalculatorPage
+      description="Estimate contractor gross pay, fees, expenses, and net pay."
+      seoKey="contractorPay"
+      title="Contractor pay calculator"
+    >
+      <CalculatorFields>
+        <NumberField label="Hourly rate" value={hourlyRate} onChange={setHourlyRate} />
+        <NumberField label="Hours worked" value={hoursWorked} onChange={setHoursWorked} />
+        <NumberField label="Expenses" value={expenses} onChange={setExpenses} />
+        <NumberField label="Fee %" value={feeRate} onChange={setFeeRate} />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['Gross pay', currency.format(result.grossPay)],
+          ['Platform fee', currency.format(result.platformFee)],
+          ['Net pay', currency.format(result.netPay)],
+        ]}
+      />
+    </CalculatorPage>
+  )
+}
+
+function VatCalculator() {
+  const [netAmount, setNetAmount] = useState(100)
+  const [vatRate, setVatRate] = useState(20)
+  const [grossAmount, setGrossAmount] = useState(120)
+
+  const result = useMemo(() => {
+    const rate = vatRate / 100
+    const vatAmount = netAmount * rate
+    const grossTotal = netAmount + vatAmount
+    const netFromGross = rate > 0 ? grossAmount / (1 + rate) : grossAmount
+    return { grossTotal, netFromGross, vatAmount, vatFromGross: grossAmount - netFromGross }
+  }, [grossAmount, netAmount, vatRate])
+
+  return (
+    <CalculatorPage
+      description="Calculate VAT, gross total, and VAT-exclusive values from net or VAT-included amounts."
+      seoKey="vat"
+      title="VAT calculator"
+    >
+      <CalculatorFields>
+        <NumberField label="Net amount" value={netAmount} onChange={setNetAmount} />
+        <NumberField label="VAT %" value={vatRate} onChange={setVatRate} />
+        <NumberField label="VAT-included total" value={grossAmount} onChange={setGrossAmount} />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['VAT amount', currency.format(result.vatAmount)],
+          ['Gross total', currency.format(result.grossTotal)],
+          ['Net from gross', currency.format(result.netFromGross)],
+          ['VAT in gross', currency.format(result.vatFromGross)],
+        ]}
+      />
+    </CalculatorPage>
+  )
+}
+
+function ServiceChargeCalculator() {
+  const [billAmount, setBillAmount] = useState(250)
+  const [serviceRate, setServiceRate] = useState(18)
+  const [taxRate, setTaxRate] = useState(8)
+
+  const result = useMemo(() => {
+    const serviceCharge = billAmount * (serviceRate / 100)
+    const taxableAmount = billAmount + serviceCharge
+    const tax = taxableAmount * (taxRate / 100)
+    return { serviceCharge, tax, total: taxableAmount + tax }
+  }, [billAmount, serviceRate, taxRate])
+
+  return (
+    <CalculatorPage
+      description="Calculate service charge, tax, and final total for bills, invoices, events, and service transactions."
+      seoKey="serviceCharge"
+      title="Service charge calculator"
+    >
+      <CalculatorFields>
+        <NumberField label="Bill amount" value={billAmount} onChange={setBillAmount} />
+        <NumberField label="Service charge %" value={serviceRate} onChange={setServiceRate} />
+        <NumberField label="Tax %" value={taxRate} onChange={setTaxRate} />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['Service charge', currency.format(result.serviceCharge)],
+          ['Tax', currency.format(result.tax)],
+          ['Final total', currency.format(result.total)],
+        ]}
+      />
+    </CalculatorPage>
+  )
+}
+
+function PurchaseOrderGenerator() {
+  const [supplier, setSupplier] = useState('Office Supply Co.')
+  const [poNumber, setPoNumber] = useState('PO-0001')
+  const [quantity, setQuantity] = useState(25)
+  const [unitCost, setUnitCost] = useState(18)
+  const [shipping, setShipping] = useState(35)
+  const [taxRate, setTaxRate] = useState(8)
+
+  const result = useMemo(() => {
+    const subtotal = quantity * unitCost
+    const tax = (subtotal + shipping) * (taxRate / 100)
+    return { subtotal, tax, total: subtotal + shipping + tax }
+  }, [quantity, shipping, taxRate, unitCost])
+
+  return (
+    <CalculatorPage
+      description="Draft a simple purchase order total with supplier, quantity, unit cost, shipping, and tax."
+      seoKey="purchaseOrder"
+      title="Purchase order generator"
+    >
+      <CalculatorFields>
+        <TextField label="Supplier" value={supplier} onChange={setSupplier} />
+        <TextField label="PO number" value={poNumber} onChange={setPoNumber} />
+        <NumberField label="Quantity" value={quantity} onChange={setQuantity} />
+        <NumberField label="Unit cost" value={unitCost} onChange={setUnitCost} />
+        <NumberField label="Shipping" value={shipping} onChange={setShipping} />
+        <NumberField label="Tax %" value={taxRate} onChange={setTaxRate} />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['Supplier', supplier],
+          ['PO number', poNumber],
+          ['Subtotal', currency.format(result.subtotal)],
+          ['Order total', currency.format(result.total)],
+        ]}
+      />
+    </CalculatorPage>
+  )
+}
+
 function CalculatorPage({
   children,
   description,
@@ -1766,6 +2497,44 @@ function NumberField({
         value={value}
         disabled={disabled}
         onChange={(event) => onChange(Number(event.target.value))}
+      />
+    </label>
+  )
+}
+
+function TextField({
+  label,
+  onChange,
+  value,
+}: {
+  label: string
+  onChange: (value: string) => void
+  value: string
+}) {
+  return (
+    <label>
+      {label}
+      <input value={value} onChange={(event) => onChange(event.target.value)} />
+    </label>
+  )
+}
+
+function DateField({
+  label,
+  onChange,
+  value,
+}: {
+  label: string
+  onChange: (value: string) => void
+  value: string
+}) {
+  return (
+    <label>
+      {label}
+      <input
+        type="date"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
       />
     </label>
   )
@@ -2172,8 +2941,53 @@ function ToolPortfolio() {
         />
         <ToolCard
           icon={<Calculator size={18} />}
+          label="Cash flow calculator"
+          to="/cash-flow-calculator"
+        />
+        <ToolCard
+          icon={<BadgeDollarSign size={18} />}
+          label="Contractor pay calculator"
+          to="/contractor-pay-calculator"
+        />
+        <ToolCard
+          icon={<BadgeDollarSign size={18} />}
+          label="Discount calculator"
+          to="/discount-calculator"
+        />
+        <ToolCard
+          icon={<Calculator size={18} />}
           label="Profit margin calculator"
           to="/profit-margin-calculator"
+        />
+        <ToolCard
+          icon={<Calculator size={18} />}
+          label="Markup calculator"
+          to="/markup-calculator"
+        />
+        <ToolCard
+          icon={<Calculator size={18} />}
+          label="ROI calculator"
+          to="/roi-calculator"
+        />
+        <ToolCard
+          icon={<Calculator size={18} />}
+          label="Loan payment calculator"
+          to="/loan-payment-calculator"
+        />
+        <ToolCard
+          icon={<Calculator size={18} />}
+          label="Late fee calculator"
+          to="/late-fee-calculator"
+        />
+        <ToolCard
+          icon={<Calculator size={18} />}
+          label="Net 30 due date calculator"
+          to="/net-30-due-date-calculator"
+        />
+        <ToolCard
+          icon={<Calculator size={18} />}
+          label="Hourly to salary calculator"
+          to="/hourly-to-salary-calculator"
         />
         <ToolCard
           icon={<Calculator size={18} />}
@@ -2189,6 +3003,21 @@ function ToolPortfolio() {
           icon={<Calculator size={18} />}
           label="Sales tax calculator"
           to="/sales-tax-calculator"
+        />
+        <ToolCard
+          icon={<Calculator size={18} />}
+          label="VAT calculator"
+          to="/vat-calculator"
+        />
+        <ToolCard
+          icon={<Calculator size={18} />}
+          label="Service charge calculator"
+          to="/service-charge-calculator"
+        />
+        <ToolCard
+          icon={<ReceiptText size={18} />}
+          label="Purchase order generator"
+          to="/purchase-order-generator"
         />
       </div>
     </section>
