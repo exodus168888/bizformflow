@@ -139,6 +139,7 @@ const routeTitles: Record<string, string> = {
   '/profit-margin-calculator': 'Profit Margin Calculator',
   '/quote-generator': 'Free Quote Generator',
   '/receipt-maker': 'Receipt Maker',
+  '/sales-tax-calculator': 'Sales Tax Calculator',
   '/terms': 'BizFormFlow Terms',
 }
 
@@ -163,6 +164,8 @@ const routeDescriptions: Record<string, string> = {
     'Create a free quote or estimate with line items, discounts, tax, autosave, live totals, and PDF export.',
   '/receipt-maker':
     'Create a free receipt with line items, payment details, live totals, and PDF export.',
+  '/sales-tax-calculator':
+    'Calculate sales tax, total price, and reverse tax from a tax-included amount for invoices, quotes, receipts, and product pricing.',
   '/terms':
     'Read the BizFormFlow terms for using small business productivity tools.',
 }
@@ -387,7 +390,7 @@ const documentSeoContent: Record<
 }
 
 const calculatorSeoContent: Record<
-  'breakEven' | 'fees' | 'freelance' | 'margin',
+  'breakEven' | 'fees' | 'freelance' | 'margin' | 'salesTax',
   {
     faqs: Array<[string, string]>
     howTo: string[]
@@ -442,6 +445,31 @@ const calculatorSeoContent: Record<
     related: [
       ['Create an invoice', '/invoice-generator'],
       ['Create a quote', '/quote-generator'],
+      ['Check profit margin', '/profit-margin-calculator'],
+    ],
+  },
+  salesTax: {
+    faqs: [
+      [
+        'How do I calculate sales tax?',
+        'Multiply the taxable subtotal by the sales tax rate. Add the tax amount to the subtotal to get the total price.',
+      ],
+      [
+        'How do I remove tax from a tax-included price?',
+        'Divide the tax-included total by one plus the tax rate. The result is the pre-tax subtotal, and the difference is the included tax.',
+      ],
+    ],
+    howTo: [
+      'Enter the pre-tax subtotal for the sale, quote, or invoice.',
+      'Enter the sales tax rate that applies to the transaction.',
+      'Review the calculated tax amount and total with tax.',
+      'Use the tax-included field when you need to back out tax from a final price.',
+    ],
+    purpose:
+      'Use this calculator to estimate sales tax on invoices, quotes, receipts, product pricing, and tax-included totals.',
+    related: [
+      ['Create an invoice', '/invoice-generator'],
+      ['Create a receipt', '/receipt-maker'],
       ['Check profit margin', '/profit-margin-calculator'],
     ],
   },
@@ -666,6 +694,7 @@ function App() {
           element={<FreelanceRateCalculator />}
         />
         <Route path="/payment-fee-calculator" element={<PaymentFeeCalculator />} />
+        <Route path="/sales-tax-calculator" element={<SalesTaxCalculator />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/privacy" element={<PolicyPage type="privacy" />} />
         <Route path="/terms" element={<PolicyPage type="terms" />} />
@@ -723,6 +752,7 @@ function Header() {
         <NavLink to="/profit-margin-calculator">Margin</NavLink>
         <NavLink to="/freelance-rate-calculator">Freelance</NavLink>
         <NavLink to="/payment-fee-calculator">Fees</NavLink>
+        <NavLink to="/sales-tax-calculator">Tax</NavLink>
         <NavLink to="/pricing">Pricing</NavLink>
       </nav>
       <Link className="topbar-action" to="/pricing">
@@ -755,6 +785,7 @@ function Footer() {
         <Link to="/profit-margin-calculator">Profit margin calculator</Link>
         <Link to="/freelance-rate-calculator">Freelance rate calculator</Link>
         <Link to="/payment-fee-calculator">Payment fee calculator</Link>
+        <Link to="/sales-tax-calculator">Sales tax calculator</Link>
       </nav>
       <nav aria-label="Footer business">
         <strong>Business</strong>
@@ -1569,6 +1600,55 @@ function PaymentFeeCalculator() {
   )
 }
 
+function SalesTaxCalculator() {
+  const [subtotal, setSubtotal] = useState(100)
+  const [taxRate, setTaxRate] = useState(8)
+  const [taxIncludedTotal, setTaxIncludedTotal] = useState(108)
+
+  const result = useMemo(() => {
+    const rate = Math.max(taxRate, 0) / 100
+    const taxableSubtotal = Math.max(subtotal, 0)
+    const taxAmount = taxableSubtotal * rate
+    const totalWithTax = taxableSubtotal + taxAmount
+    const includedTotal = Math.max(taxIncludedTotal, 0)
+    const reverseSubtotal = rate > 0 ? includedTotal / (1 + rate) : includedTotal
+    const includedTax = includedTotal - reverseSubtotal
+
+    return {
+      includedTax,
+      reverseSubtotal,
+      taxAmount,
+      totalWithTax,
+    }
+  }, [subtotal, taxIncludedTotal, taxRate])
+
+  return (
+    <CalculatorPage
+      description="Calculate sales tax, total with tax, and the pre-tax amount inside a tax-included price."
+      seoKey="salesTax"
+      title="Sales tax calculator"
+    >
+      <CalculatorFields>
+        <NumberField label="Subtotal" value={subtotal} onChange={setSubtotal} />
+        <NumberField label="Sales tax %" value={taxRate} onChange={setTaxRate} />
+        <NumberField
+          label="Tax-included total"
+          value={taxIncludedTotal}
+          onChange={setTaxIncludedTotal}
+        />
+      </CalculatorFields>
+      <ResultGrid
+        results={[
+          ['Tax amount', currency.format(result.taxAmount)],
+          ['Total with tax', currency.format(result.totalWithTax)],
+          ['Pre-tax from total', currency.format(result.reverseSubtotal)],
+          ['Included tax', currency.format(result.includedTax)],
+        ]}
+      />
+    </CalculatorPage>
+  )
+}
+
 function CalculatorPage({
   children,
   description,
@@ -2104,6 +2184,11 @@ function ToolPortfolio() {
           icon={<BadgeDollarSign size={18} />}
           label="Payment fee calculator"
           to="/payment-fee-calculator"
+        />
+        <ToolCard
+          icon={<Calculator size={18} />}
+          label="Sales tax calculator"
+          to="/sales-tax-calculator"
         />
       </div>
     </section>
