@@ -629,6 +629,49 @@ th {
   margin: 0;
 }
 
+.tools-directory {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 16px;
+  padding: 46px clamp(18px, 4vw, 56px);
+}
+
+.tools-directory article {
+  align-items: start;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(220px, 0.45fr) minmax(0, 1fr);
+  padding: 22px;
+}
+
+.tools-directory h2 {
+  margin: 0 0 8px;
+}
+
+.tools-directory p {
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.directory-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.directory-links a {
+  background: var(--wash);
+  border-radius: 6px;
+  color: var(--ink);
+  font-weight: 800;
+  padding: 10px 12px;
+  text-decoration: none;
+}
+
 .faq-grid {
   display: grid;
   gap: 12px;
@@ -938,6 +981,7 @@ th {
   .result-grid,
   .pricing-grid,
   .legal-grid,
+  .tools-directory article,
   .site-footer {
     grid-template-columns: 1fr;
   }

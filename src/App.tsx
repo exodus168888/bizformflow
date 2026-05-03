@@ -152,6 +152,7 @@ const routeTitles: Record<string, string> = {
   '/sales-tax-calculator': 'Sales Tax Calculator',
   '/service-charge-calculator': 'Service Charge Calculator',
   '/terms': 'BizFormFlow Terms',
+  '/tools': 'BizFormFlow Tools Directory',
   '/vat-calculator': 'VAT Calculator',
 }
 
@@ -202,6 +203,8 @@ const routeDescriptions: Record<string, string> = {
     'Calculate service charges, tax, and final total for invoices, bills, events, and service transactions.',
   '/terms':
     'Read the BizFormFlow terms for using small business productivity tools.',
+  '/tools':
+    'Browse all BizFormFlow tools for invoices, quotes, receipts, pricing, taxes, payment fees, cash flow, contractors, and purchasing.',
   '/vat-calculator':
     'Calculate VAT amount, gross total, and VAT-exclusive amount from net or VAT-included prices.',
 }
@@ -233,6 +236,59 @@ const setCleanExportCredits = (credits: number) => {
 const addCleanExportCredit = () => {
   setCleanExportCredits(getCleanExportCredits() + 1)
 }
+
+const toolGroups = [
+  {
+    description: 'Create everyday client-facing business documents.',
+    links: [
+      ['Invoice Generator', '/invoice-generator'],
+      ['Quote Generator', '/quote-generator'],
+      ['Receipt Maker', '/receipt-maker'],
+      ['Purchase Order Generator', '/purchase-order-generator'],
+    ],
+    title: 'Documents',
+  },
+  {
+    description: 'Price offers, discounts, margins, and investment returns.',
+    links: [
+      ['Profit Margin Calculator', '/profit-margin-calculator'],
+      ['Markup Calculator', '/markup-calculator'],
+      ['Discount Calculator', '/discount-calculator'],
+      ['Break-even Calculator', '/break-even-calculator'],
+      ['ROI Calculator', '/roi-calculator'],
+    ],
+    title: 'Pricing',
+  },
+  {
+    description: 'Estimate tax, VAT, payment fees, and service charges.',
+    links: [
+      ['Payment Fee Calculator', '/payment-fee-calculator'],
+      ['Sales Tax Calculator', '/sales-tax-calculator'],
+      ['VAT Calculator', '/vat-calculator'],
+      ['Service Charge Calculator', '/service-charge-calculator'],
+    ],
+    title: 'Payments and Tax',
+  },
+  {
+    description: 'Plan payments, cash, due dates, and financing.',
+    links: [
+      ['Cash Flow Calculator', '/cash-flow-calculator'],
+      ['Loan Payment Calculator', '/loan-payment-calculator'],
+      ['Late Fee Calculator', '/late-fee-calculator'],
+      ['Net 30 Due Date Calculator', '/net-30-due-date-calculator'],
+    ],
+    title: 'Cash Flow',
+  },
+  {
+    description: 'Estimate rates and pay for freelance or contract work.',
+    links: [
+      ['Freelance Rate Calculator', '/freelance-rate-calculator'],
+      ['Hourly to Salary Calculator', '/hourly-to-salary-calculator'],
+      ['Contractor Pay Calculator', '/contractor-pay-calculator'],
+    ],
+    title: 'Freelance and Contractor',
+  },
+]
 
 const getErrorMessage = (error: unknown) => {
   if (error instanceof Error) {
@@ -991,6 +1047,7 @@ function App() {
         <Route path="/privacy" element={<PolicyPage type="privacy" />} />
         <Route path="/terms" element={<PolicyPage type="terms" />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/tools" element={<ToolsDirectoryPage />} />
       </Routes>
       <Footer />
     </main>
@@ -1045,6 +1102,7 @@ function Header() {
         <NavLink to="/freelance-rate-calculator">Freelance</NavLink>
         <NavLink to="/payment-fee-calculator">Fees</NavLink>
         <NavLink to="/sales-tax-calculator">Tax</NavLink>
+        <NavLink to="/tools">Tools</NavLink>
         <NavLink to="/pricing">Pricing</NavLink>
       </nav>
       <Link className="topbar-action" to="/pricing">
@@ -1097,6 +1155,7 @@ function Footer() {
         <Link to="/privacy">Privacy</Link>
         <Link to="/terms">Terms</Link>
         <Link to="/contact">Contact</Link>
+        <Link to="/tools">All tools</Link>
       </nav>
     </footer>
   )
@@ -1118,8 +1177,8 @@ function HomePage() {
               <FileText size={18} />
               Open invoice generator
             </Link>
-            <Link className="secondary-link" to="/pricing">
-              View monetization
+            <Link className="secondary-link" to="/tools">
+              Browse all tools
             </Link>
           </div>
         </div>
@@ -1128,6 +1187,41 @@ function HomePage() {
       <SeoSection />
       <ToolPortfolio />
       <LegalTeaser />
+    </>
+  )
+}
+
+function ToolsDirectoryPage() {
+  return (
+    <>
+      <section className="hero calculator-hero">
+        <div className="hero-copy">
+          <h1>All small business tools</h1>
+          <p>
+            Browse free document generators and calculators for billing, pricing,
+            taxes, cash flow, contractor pay, and purchasing.
+          </p>
+        </div>
+        <RevenuePanel />
+      </section>
+      <section className="tools-directory">
+        {toolGroups.map((group) => (
+          <article key={group.title}>
+            <div>
+              <h2>{group.title}</h2>
+              <p>{group.description}</p>
+            </div>
+            <div className="directory-links">
+              {group.links.map(([label, href]) => (
+                <Link key={href} to={href}>
+                  {label}
+                </Link>
+              ))}
+            </div>
+          </article>
+        ))}
+      </section>
+      <SeoSection />
     </>
   )
 }
