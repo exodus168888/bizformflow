@@ -6,6 +6,7 @@ import {
   Routes,
   useLocation,
   useNavigate,
+  useParams,
 } from 'react-router-dom'
 import {
   BadgeDollarSign,
@@ -135,6 +136,11 @@ const routeTitles: Record<string, string> = {
   '/contractor-pay-calculator': 'Contractor Pay Calculator',
   '/discount-calculator': 'Discount Calculator',
   '/freelance-rate-calculator': 'Freelance Rate Calculator',
+  '/guides/freelance-hourly-rate-guide': 'Freelance Hourly Rate Guide',
+  '/guides/how-to-create-an-invoice': 'How to Create an Invoice',
+  '/guides/invoice-vs-receipt': 'Invoice vs Receipt',
+  '/guides/net-30-payment-terms': 'Net 30 Payment Terms',
+  '/guides/profit-margin-vs-markup': 'Profit Margin vs Markup',
   '/hourly-to-salary-calculator': 'Hourly to Salary Calculator',
   '/invoice-generator': 'Free Invoice Generator',
   '/late-fee-calculator': 'Late Fee Calculator',
@@ -169,6 +175,16 @@ const routeDescriptions: Record<string, string> = {
     'Calculate discount amount, sale price, tax, and final total from original price, discount rate, quantity, and tax rate.',
   '/freelance-rate-calculator':
     'Estimate hourly, daily, monthly, and annual freelance rates from income goals, expenses, taxes, and billable hours.',
+  '/guides/freelance-hourly-rate-guide':
+    'Learn how to set a freelance hourly rate from income goals, expenses, taxes, billable hours, and project risk.',
+  '/guides/how-to-create-an-invoice':
+    'Learn what to include on a small business invoice, how to calculate totals, and when to send payment reminders.',
+  '/guides/invoice-vs-receipt':
+    'Compare invoices and receipts, when to use each document, and how they fit into a small business payment workflow.',
+  '/guides/net-30-payment-terms':
+    'Understand Net 30 payment terms, due dates, late fees, and practical ways to make invoices easier to collect.',
+  '/guides/profit-margin-vs-markup':
+    'Understand profit margin versus markup, how each calculation works, and which number to use when pricing work.',
   '/hourly-to-salary-calculator':
     'Convert hourly rate to weekly, monthly, and annual salary based on hours per week and paid weeks per year.',
   '/invoice-generator':
@@ -287,6 +303,212 @@ const toolGroups = [
       ['Contractor Pay Calculator', '/contractor-pay-calculator'],
     ],
     title: 'Freelance and Contractor',
+  },
+]
+
+type GuidePageData = {
+  body: Array<{
+    heading: string
+    text: string
+    points?: string[]
+  }>
+  cta: {
+    label: string
+    to: string
+  }
+  intro: string
+  relatedTools: Array<[string, string]>
+  slug: string
+  title: string
+}
+
+const guidePages: GuidePageData[] = [
+  {
+    body: [
+      {
+        heading: 'What an invoice should include',
+        points: [
+          'Your business name, email, and address',
+          'Client name, email, and billing address',
+          'Invoice number, issue date, and due date',
+          'Line items with quantity, rate, tax, discounts, and total due',
+          'Payment instructions and clear notes about the work delivered',
+        ],
+        text: 'A useful invoice removes uncertainty. The client should understand who sent it, what they are paying for, when payment is due, and how the total was calculated.',
+      },
+      {
+        heading: 'When to send it',
+        text: 'Send the invoice as soon as the work is approved, delivered, or reaches a billing milestone. The longer the delay, the easier it is for payment to drift behind other priorities.',
+      },
+      {
+        heading: 'Before exporting the PDF',
+        points: [
+          'Check the client name and email carefully',
+          'Confirm tax rate, discount, and payment terms',
+          'Use a consistent invoice number format',
+          'Add short payment notes instead of long explanations',
+        ],
+        text: 'A final review protects cash flow and reduces back-and-forth with the client.',
+      },
+    ],
+    cta: {
+      label: 'Create an invoice',
+      to: '/invoice-generator',
+    },
+    intro:
+      'A small business invoice should be easy to read, easy to verify, and easy to pay. Use this guide as a quick checklist before sending your next client bill.',
+    relatedTools: [
+      ['Invoice Generator', '/invoice-generator'],
+      ['Quote Generator', '/quote-generator'],
+      ['Receipt Maker', '/receipt-maker'],
+      ['Net 30 Due Date Calculator', '/net-30-due-date-calculator'],
+    ],
+    slug: 'how-to-create-an-invoice',
+    title: 'How to create an invoice',
+  },
+  {
+    body: [
+      {
+        heading: 'The main difference',
+        text: 'An invoice requests payment. A receipt confirms that payment already happened. Both documents can show line items, totals, tax, and business details, but they happen at different points in the transaction.',
+      },
+      {
+        heading: 'Use an invoice when',
+        points: [
+          'You completed work and need the client to pay',
+          'You are billing on Net 7, Net 15, Net 30, or another term',
+          'You need to show tax, discounts, and payment instructions',
+        ],
+        text: 'Invoices are best for accounts receivable and client billing.',
+      },
+      {
+        heading: 'Use a receipt when',
+        points: [
+          'The customer already paid',
+          'You need proof of purchase or proof of payment',
+          'You want to document the final transaction for both sides',
+        ],
+        text: 'Receipts are best after checkout, cash payment, online payment, or settlement of an invoice.',
+      },
+    ],
+    cta: {
+      label: 'Make a receipt',
+      to: '/receipt-maker',
+    },
+    intro:
+      'Invoices and receipts are both business records, but they are not interchangeable. Knowing when to use each one keeps your records cleaner.',
+    relatedTools: [
+      ['Invoice Generator', '/invoice-generator'],
+      ['Receipt Maker', '/receipt-maker'],
+      ['Payment Fee Calculator', '/payment-fee-calculator'],
+    ],
+    slug: 'invoice-vs-receipt',
+    title: 'Invoice vs receipt',
+  },
+  {
+    body: [
+      {
+        heading: 'Profit margin',
+        text: 'Profit margin shows profit as a percentage of the selling price. If you sell for $100 and your cost is $60, your profit is $40 and your margin is 40%.',
+      },
+      {
+        heading: 'Markup',
+        text: 'Markup shows profit as a percentage of cost. If your cost is $60 and you add $40 profit, the markup is 66.7%.',
+      },
+      {
+        heading: 'Which one to use',
+        points: [
+          'Use margin when measuring profitability',
+          'Use markup when setting price from a known cost',
+          'Check both before quoting a client or listing a product',
+        ],
+        text: 'The same transaction can have very different margin and markup percentages, so it helps to calculate both before making pricing decisions.',
+      },
+    ],
+    cta: {
+      label: 'Calculate margin',
+      to: '/profit-margin-calculator',
+    },
+    intro:
+      'Profit margin and markup both describe profit, but they answer different questions. Confusing them can make a price look healthier than it really is.',
+    relatedTools: [
+      ['Profit Margin Calculator', '/profit-margin-calculator'],
+      ['Markup Calculator', '/markup-calculator'],
+      ['Break-even Calculator', '/break-even-calculator'],
+      ['ROI Calculator', '/roi-calculator'],
+    ],
+    slug: 'profit-margin-vs-markup',
+    title: 'Profit margin vs markup',
+  },
+  {
+    body: [
+      {
+        heading: 'What Net 30 means',
+        text: 'Net 30 means the full invoice balance is due 30 calendar days after the invoice date, unless your agreement says otherwise.',
+      },
+      {
+        heading: 'Why terms matter',
+        points: [
+          'They tell the client exactly when payment is expected',
+          'They help you forecast cash flow',
+          'They make follow-ups easier because the due date is clear',
+        ],
+        text: 'Clear terms reduce confusion and make collection conversations less awkward.',
+      },
+      {
+        heading: 'Late fees and reminders',
+        text: 'If you charge late fees, state the policy before work begins and include it in your agreement or invoice notes. Many small businesses also send a friendly reminder a few days before the due date.',
+      },
+    ],
+    cta: {
+      label: 'Calculate a due date',
+      to: '/net-30-due-date-calculator',
+    },
+    intro:
+      'Net 30 is one of the most common invoice payment terms. It is simple, but it still needs clear due dates and follow-up habits.',
+    relatedTools: [
+      ['Net 30 Due Date Calculator', '/net-30-due-date-calculator'],
+      ['Late Fee Calculator', '/late-fee-calculator'],
+      ['Invoice Generator', '/invoice-generator'],
+      ['Cash Flow Calculator', '/cash-flow-calculator'],
+    ],
+    slug: 'net-30-payment-terms',
+    title: 'Net 30 payment terms',
+  },
+  {
+    body: [
+      {
+        heading: 'Start with annual income',
+        text: 'Choose the annual take-home income you want, then add business expenses, taxes, software, insurance, and unpaid time. Your hourly rate needs to cover more than the hours you spend working directly for clients.',
+      },
+      {
+        heading: 'Billable hours are limited',
+        points: [
+          'Admin, sales, proposals, bookkeeping, and learning are often unpaid',
+          'Vacation, sick days, and slow weeks reduce available hours',
+          'A sustainable rate should assume fewer billable hours than a full-time job',
+        ],
+        text: 'Many freelancers overestimate billable time, which leads to rates that look fine on paper but fail in real life.',
+      },
+      {
+        heading: 'Add risk and value',
+        text: 'Urgent work, specialized skills, strategic value, and difficult projects can justify a higher rate. A calculator gives a baseline, but positioning and client value also matter.',
+      },
+    ],
+    cta: {
+      label: 'Calculate freelance rate',
+      to: '/freelance-rate-calculator',
+    },
+    intro:
+      'A freelance hourly rate should cover income goals, expenses, taxes, unpaid time, and project risk. This guide gives you a practical starting point.',
+    relatedTools: [
+      ['Freelance Rate Calculator', '/freelance-rate-calculator'],
+      ['Hourly to Salary Calculator', '/hourly-to-salary-calculator'],
+      ['Contractor Pay Calculator', '/contractor-pay-calculator'],
+      ['Quote Generator', '/quote-generator'],
+    ],
+    slug: 'freelance-hourly-rate-guide',
+    title: 'Freelance hourly rate guide',
   },
 ]
 
@@ -1048,6 +1270,7 @@ function App() {
         <Route path="/terms" element={<PolicyPage type="terms" />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/tools" element={<ToolsDirectoryPage />} />
+        <Route path="/guides/:guideSlug" element={<GuidePage />} />
       </Routes>
       <Footer />
     </main>
@@ -1156,6 +1379,8 @@ function Footer() {
         <Link to="/terms">Terms</Link>
         <Link to="/contact">Contact</Link>
         <Link to="/tools">All tools</Link>
+        <Link to="/guides/how-to-create-an-invoice">Invoice guide</Link>
+        <Link to="/guides/profit-margin-vs-markup">Margin guide</Link>
       </nav>
     </footer>
   )
@@ -1185,6 +1410,7 @@ function HomePage() {
         <RevenuePanel />
       </section>
       <SeoSection />
+      <GuidePreview />
       <ToolPortfolio />
       <LegalTeaser />
     </>
@@ -1222,6 +1448,7 @@ function ToolsDirectoryPage() {
         ))}
       </section>
       <SeoSection />
+      <GuidePreview />
     </>
   )
 }
@@ -3011,6 +3238,88 @@ function SeoSection() {
         </article>
       </div>
     </section>
+  )
+}
+
+function GuidePreview() {
+  return (
+    <section className="guide-preview" id="guides">
+      <div className="content-intro">
+        <h2>Small business guides</h2>
+        <p>
+          Practical explainers that connect billing, pricing, payment terms, and
+          freelance math back to the tools.
+        </p>
+      </div>
+      <div className="guide-card-grid">
+        {guidePages.map((guide) => (
+          <Link key={guide.slug} to={`/guides/${guide.slug}`}>
+            <span>Guide</span>
+            <strong>{guide.title}</strong>
+            <small>{guide.intro}</small>
+          </Link>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function GuidePage() {
+  const { guideSlug } = useParams()
+  const guide =
+    guidePages.find((item) => item.slug === guideSlug) ?? guidePages[0]
+
+  return (
+    <>
+      <section className="hero calculator-hero guide-hero">
+        <div className="hero-copy">
+          <span className="eyebrow">Small business guide</span>
+          <h1>{guide.title}</h1>
+          <p>{guide.intro}</p>
+          <div className="hero-actions">
+            <Link className="primary-link" to={guide.cta.to}>
+              <Calculator size={18} />
+              {guide.cta.label}
+            </Link>
+            <Link className="secondary-link" to="/tools">
+              Browse tools
+            </Link>
+          </div>
+        </div>
+        <RevenuePanel />
+      </section>
+
+      <section className="guide-page">
+        <div className="guide-content">
+          {guide.body.map((section) => (
+            <article key={section.heading}>
+              <h2>{section.heading}</h2>
+              <p>{section.text}</p>
+              {section.points ? (
+                <ul>
+                  {section.points.map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </article>
+          ))}
+        </div>
+
+        <aside className="guide-sidebar" aria-label="Related tools">
+          <h2>Related tools</h2>
+          <div>
+            {guide.relatedTools.map(([label, href]) => (
+              <Link key={href} to={href}>
+                {label}
+              </Link>
+            ))}
+          </div>
+        </aside>
+      </section>
+
+      <GuidePreview />
+    </>
   )
 }
 
