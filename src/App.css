@@ -529,7 +529,9 @@ th {
 .seo-section,
 .legal-section,
 .content-section,
-.guide-preview {
+.guide-preview,
+.resource-preview,
+.resource-index {
   border-top: 1px solid var(--line);
   padding: 46px clamp(18px, 4vw, 56px);
 }
@@ -710,13 +712,21 @@ th {
   gap: 24px;
 }
 
-.guide-card-grid {
+.resource-preview,
+.resource-index {
   display: grid;
-  gap: 14px;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 24px;
 }
 
-.guide-card-grid a {
+.guide-card-grid,
+.template-card-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+.guide-card-grid a,
+.template-card-grid a {
   background: white;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -729,6 +739,7 @@ th {
 }
 
 .guide-card-grid span,
+.template-card-grid span,
 .eyebrow {
   color: var(--accent);
   font-size: 12px;
@@ -737,15 +748,21 @@ th {
   text-transform: uppercase;
 }
 
-.guide-card-grid strong {
+.guide-card-grid strong,
+.template-card-grid strong {
   font-size: 19px;
   line-height: 1.15;
 }
 
-.guide-card-grid small {
+.guide-card-grid small,
+.template-card-grid small {
   color: var(--muted);
   font-size: 14px;
   line-height: 1.55;
+}
+
+.inline-resource-link {
+  justify-self: start;
 }
 
 .guide-page {
@@ -756,13 +773,22 @@ th {
   padding: 46px clamp(18px, 4vw, 56px);
 }
 
+.template-page {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 46px clamp(18px, 4vw, 56px);
+}
+
 .guide-content {
   display: grid;
   gap: 16px;
 }
 
 .guide-content article,
-.guide-sidebar {
+.guide-sidebar,
+.template-page article {
   background: white;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -770,23 +796,29 @@ th {
 }
 
 .guide-content h2,
-.guide-sidebar h2 {
+.guide-sidebar h2,
+.template-page h2 {
   font-size: 26px;
   line-height: 1.15;
   margin: 0 0 12px;
 }
 
 .guide-content p,
-.guide-content li {
+.guide-content li,
+.template-page p,
+.template-page li {
   color: var(--muted);
   line-height: 1.7;
 }
 
-.guide-content p {
+.guide-content p,
+.template-page p {
   margin: 0;
 }
 
-.guide-content ul {
+.guide-content ul,
+.template-page ul,
+.template-page ol {
   margin: 16px 0 0;
   padding-left: 20px;
 }
@@ -1084,7 +1116,9 @@ th {
   .legal-section,
   .content-grid,
   .guide-card-grid,
+  .template-card-grid,
   .guide-page,
+  .template-page,
   .faq-grid,
   .calculator-fields,
   .result-grid,

@@ -130,6 +130,7 @@ const starterItems: LineItem[] = [
 
 const routeTitles: Record<string, string> = {
   '/': 'BizFormFlow Small Business Tools',
+  '/about': 'About BizFormFlow',
   '/break-even-calculator': 'Break-even Calculator',
   '/cash-flow-calculator': 'Cash Flow Calculator',
   '/contact': 'Contact BizFormFlow',
@@ -150,20 +151,25 @@ const routeTitles: Record<string, string> = {
   '/payment-fee-calculator': 'Payment Fee Calculator',
   '/pricing': 'BizFormFlow Pricing',
   '/privacy': 'BizFormFlow Privacy Policy',
+  '/privacy-policy': 'BizFormFlow Privacy Policy',
   '/profit-margin-calculator': 'Profit Margin Calculator',
   '/purchase-order-generator': 'Purchase Order Generator',
   '/quote-generator': 'Free Quote Generator',
   '/receipt-maker': 'Receipt Maker',
+  '/resources': 'Small Business Resources',
   '/roi-calculator': 'ROI Calculator',
   '/sales-tax-calculator': 'Sales Tax Calculator',
   '/service-charge-calculator': 'Service Charge Calculator',
   '/terms': 'BizFormFlow Terms',
+  '/terms-of-service': 'BizFormFlow Terms of Service',
   '/tools': 'BizFormFlow Tools Directory',
   '/vat-calculator': 'VAT Calculator',
 }
 
 const routeDescriptions: Record<string, string> = {
   '/': 'Free small business tools for invoices, quotes, receipts, profit margins, freelance rates, and PDF exports.',
+  '/about':
+    'Learn who BizFormFlow is for and how the tools help small businesses prepare documents, pricing, and payment workflows.',
   '/break-even-calculator':
     'Calculate break-even units, break-even revenue, and expected profit or loss from fixed costs, variable costs, price, and sales volume.',
   '/cash-flow-calculator':
@@ -203,6 +209,8 @@ const routeDescriptions: Record<string, string> = {
     'Review BizFormFlow paid export, Pro, and Business pricing options for small business tools.',
   '/privacy':
     'Read how BizFormFlow handles local drafts, analytics, ads, and payment disclosures.',
+  '/privacy-policy':
+    'Read how BizFormFlow handles local drafts, analytics, ads, and payment disclosures.',
   '/profit-margin-calculator':
     'Calculate profit, margin, and markup from product cost, selling price, and fees.',
   '/purchase-order-generator':
@@ -211,6 +219,8 @@ const routeDescriptions: Record<string, string> = {
     'Create a free quote or estimate with line items, discounts, tax, autosave, live totals, and PDF export.',
   '/receipt-maker':
     'Create a free receipt with line items, payment details, live totals, and PDF export.',
+  '/resources':
+    'Browse practical small business guides and form templates for invoices, quotes, approvals, vendors, purchasing, and client onboarding.',
   '/roi-calculator':
     'Calculate return on investment, net gain, and ROI percentage from investment cost, revenue, and extra costs.',
   '/sales-tax-calculator':
@@ -218,6 +228,8 @@ const routeDescriptions: Record<string, string> = {
   '/service-charge-calculator':
     'Calculate service charges, tax, and final total for invoices, bills, events, and service transactions.',
   '/terms':
+    'Read the BizFormFlow terms for using small business productivity tools.',
+  '/terms-of-service':
     'Read the BizFormFlow terms for using small business productivity tools.',
   '/tools':
     'Browse all BizFormFlow tools for invoices, quotes, receipts, pricing, taxes, payment fees, cash flow, contractors, and purchasing.',
@@ -235,6 +247,35 @@ const paypalClientId =
 const supportEmail = 'support@bizformflow.com'
 const cleanExportCreditsKey = 'bizformflow.cleanExportCredits.v1'
 const creditsChangedEvent = 'bizformflow:credits-changed'
+
+const getRouteMeta = (pathname: string) => {
+  const guideMatch = pathname.match(/^\/guides\/([^/]+)$/)
+  if (guideMatch) {
+    const guide = guidePages.find((item) => item.slug === guideMatch[1])
+    if (guide) {
+      return {
+        description: guide.intro,
+        title: `${guide.title} | BizFormFlow`,
+      }
+    }
+  }
+
+  const templateMatch = pathname.match(/^\/templates\/([^/]+)$/)
+  if (templateMatch) {
+    const template = templatePages.find((item) => item.slug === templateMatch[1])
+    if (template) {
+      return {
+        description: template.intro,
+        title: `${template.title} | BizFormFlow`,
+      }
+    }
+  }
+
+  return {
+    description: routeDescriptions[pathname] ?? routeDescriptions['/'],
+    title: routeTitles[pathname] ?? routeTitles['/'],
+  }
+}
 
 const getCleanExportCredits = () => {
   if (typeof window === 'undefined') {
@@ -320,6 +361,16 @@ type GuidePageData = {
   relatedTools: Array<[string, string]>
   slug: string
   title: string
+}
+
+type TemplatePageData = {
+  commonMistakes: string[]
+  fields: string[]
+  intro: string
+  process: string[]
+  slug: string
+  title: string
+  whoUsesIt: string
 }
 
 const guidePages: GuidePageData[] = [
@@ -509,6 +560,592 @@ const guidePages: GuidePageData[] = [
     ],
     slug: 'freelance-hourly-rate-guide',
     title: 'Freelance hourly rate guide',
+  },
+  {
+    body: [
+      {
+        heading: 'What to collect first',
+        points: [
+          'Client name, company, email, phone, and preferred contact method',
+          'Project type, goal, deadline, and budget range',
+          'Files, reference links, billing contact, and approval contact',
+        ],
+        text: 'A client intake form should collect the facts needed to qualify the request before the first sales call or quote.',
+      },
+      {
+        heading: 'How the workflow should move',
+        text: 'After submission, route the request to the right owner, ask for missing details, then create a quote, schedule, or kickoff checklist from the same information.',
+      },
+      {
+        heading: 'Common mistakes',
+        points: [
+          'Asking for too much information too early',
+          'Leaving out budget, deadline, or decision-maker fields',
+          'Collecting files but not assigning a next follow-up owner',
+        ],
+        text: 'The form should reduce friction, not become a long questionnaire nobody wants to complete.',
+      },
+    ],
+    cta: { label: 'Open client template', to: '/templates/client-intake-form' },
+    intro:
+      'A client intake form helps a small business collect the right details before quoting, scheduling, or starting work.',
+    relatedTools: [
+      ['Quote Generator', '/quote-generator'],
+      ['Invoice Generator', '/invoice-generator'],
+      ['Client Intake Template', '/templates/client-intake-form'],
+    ],
+    slug: 'client-intake-form-guide',
+    title: 'Client intake form guide',
+  },
+  {
+    body: [
+      {
+        heading: 'What purchase approvals protect',
+        text: 'A purchase request workflow helps a business avoid duplicate buying, unclear budgets, rushed supplier decisions, and missing documentation before money is committed.',
+      },
+      {
+        heading: 'Core approval steps',
+        points: [
+          'Requester submits item, supplier, reason, cost, and needed date',
+          'Manager checks business need and budget fit',
+          'Finance checks payment terms, tax, and available cash',
+          'Purchasing confirms supplier details and issues the purchase order',
+        ],
+        text: 'Each step should answer a different question so approvals are fast but still controlled.',
+      },
+      {
+        heading: 'When to escalate',
+        points: [
+          'Amount is above the approval limit',
+          'Supplier is new or missing documents',
+          'Purchase is urgent or outside budget',
+          'Item affects safety, compliance, or customer delivery',
+        ],
+        text: 'Escalation rules keep routine purchases moving while giving sensitive spending extra review.',
+      },
+    ],
+    cta: { label: 'Create purchase order', to: '/purchase-order-generator' },
+    intro:
+      'A purchase request approval workflow gives small teams a clean way to approve spending before issuing a purchase order.',
+    relatedTools: [
+      ['Purchase Order Generator', '/purchase-order-generator'],
+      ['Cash Flow Calculator', '/cash-flow-calculator'],
+      ['Purchase Request Template', '/templates/purchase-request-form'],
+    ],
+    slug: 'purchase-request-approval-workflow',
+    title: 'Purchase request approval workflow',
+  },
+  {
+    body: [
+      {
+        heading: 'Why supplier registration matters',
+        text: 'Supplier registration keeps business, tax, contact, bank, product, and compliance details in one place before a company starts buying from a vendor.',
+      },
+      {
+        heading: 'Information to collect',
+        points: [
+          'Registered business name, trading name, and address',
+          'Primary, billing, and logistics contacts',
+          'Tax ID, payment terms, currency, and bank instructions',
+          'Product categories, lead times, minimum order quantities, and certificates',
+        ],
+        text: 'Separate required information from optional details so suppliers can complete the form without confusion.',
+      },
+      {
+        heading: 'Approval checks',
+        points: [
+          'Verify that contact details are consistent',
+          'Check certificates and expiration dates',
+          'Confirm payment information through a secure channel',
+          'Assign an internal owner before approval',
+        ],
+        text: 'A supplier form is most useful when it feeds a real review process instead of becoming another attachment.',
+      },
+    ],
+    cta: { label: 'Open supplier template', to: '/templates/supplier-registration-form' },
+    intro:
+      'A supplier registration form helps importers, distributors, restaurants, and service businesses onboard vendors with fewer missing details.',
+    relatedTools: [
+      ['Purchase Order Generator', '/purchase-order-generator'],
+      ['Supplier Template', '/templates/supplier-registration-form'],
+      ['Contact', '/contact'],
+    ],
+    slug: 'supplier-registration-form-fields',
+    title: 'Supplier registration form fields',
+  },
+  {
+    body: [
+      {
+        heading: 'Why spreadsheet approvals break',
+        text: 'Spreadsheets are flexible, but they are weak at ownership, status tracking, approval history, reminders, and file control.',
+      },
+      {
+        heading: 'Signs it is time to move',
+        points: [
+          'People ask in chat whether a request was approved',
+          'Several versions of the same file exist',
+          'Managers approve by email without a central record',
+          'Finance or operations retypes data into another system',
+        ],
+        text: 'The issue is usually that the process needs routing and accountability.',
+      },
+      {
+        heading: 'A simple migration path',
+        text: 'Turn the current columns into a form, define approval steps, attach required files, send notification emails, and export the final record for finance or operations.',
+      },
+    ],
+    cta: { label: 'Browse tools', to: '/tools' },
+    intro:
+      'Many small businesses begin with spreadsheet approvals. This guide explains when to move to form-based workflows.',
+    relatedTools: [
+      ['Cash Flow Calculator', '/cash-flow-calculator'],
+      ['Purchase Order Generator', '/purchase-order-generator'],
+      ['All Resources', '/resources'],
+    ],
+    slug: 'replace-spreadsheet-approvals',
+    title: 'How to replace spreadsheet approvals',
+  },
+  {
+    body: [
+      {
+        heading: 'What leave requests need',
+        text: 'A leave request workflow should show who is requesting time off, which dates are affected, what type of leave applies, and who must approve it.',
+      },
+      {
+        heading: 'Useful fields',
+        points: [
+          'Employee name, department, manager, and contact details',
+          'Leave type, start date, end date, and total working days',
+          'Reason or note when required by policy',
+          'Backup person or handover notes',
+        ],
+        text: 'Simple fields make it easier for managers to judge staffing impact quickly.',
+      },
+      {
+        heading: 'Avoid these mistakes',
+        points: [
+          'Approving leave without checking overlapping requests',
+          'Not recording half-days or local holidays clearly',
+          'Using chat approval with no searchable record',
+          'Forgetting payroll or attendance updates',
+        ],
+        text: 'A lightweight workflow can prevent scheduling and payroll confusion later.',
+      },
+    ],
+    cta: { label: 'Open leave template', to: '/templates/leave-request-form' },
+    intro:
+      'A leave request form gives managers and HR a consistent way to approve vacation, sick leave, and other absences.',
+    relatedTools: [
+      ['Hourly to Salary Calculator', '/hourly-to-salary-calculator'],
+      ['Contractor Pay Calculator', '/contractor-pay-calculator'],
+      ['Leave Template', '/templates/leave-request-form'],
+    ],
+    slug: 'employee-leave-request-workflow',
+    title: 'Employee leave request workflow',
+  },
+  {
+    body: [
+      {
+        heading: 'Why quotes need approval',
+        text: 'Sales quotes can affect margin, delivery promises, payment terms, and customer expectations. Approval catches risky pricing before the quote reaches the client.',
+      },
+      {
+        heading: 'Approval triggers',
+        points: [
+          'Discount is above the normal limit',
+          'Gross margin is below the target',
+          'Delivery date is tight or depends on a supplier',
+          'Payment terms are longer than standard',
+        ],
+        text: 'The best workflow escalates only the quotes that carry real business risk.',
+      },
+      {
+        heading: 'After approval',
+        points: [
+          'Lock the approved version before sending',
+          'Track whether the client accepted or requested changes',
+          'Convert accepted quotes into invoices or purchase orders',
+          'Keep rejected versions for learning and audit history',
+        ],
+        text: 'A quote workflow should connect sales control with faster client follow-up.',
+      },
+    ],
+    cta: { label: 'Create a quote', to: '/quote-generator' },
+    intro:
+      'A quote approval process protects margin and keeps sales promises realistic before a client signs off.',
+    relatedTools: [
+      ['Quote Generator', '/quote-generator'],
+      ['Profit Margin Calculator', '/profit-margin-calculator'],
+      ['Discount Calculator', '/discount-calculator'],
+    ],
+    slug: 'quotation-approval-workflow',
+    title: 'Quotation approval workflow',
+  },
+  {
+    body: [
+      {
+        heading: 'Why document status matters',
+        text: 'Documents get lost when teams rely on email threads, chat messages, and file names to track approvals.',
+      },
+      {
+        heading: 'Useful statuses',
+        points: [
+          'Draft',
+          'Submitted for review',
+          'Needs changes',
+          'Approved',
+          'Sent to client or supplier',
+          'Completed or archived',
+        ],
+        text: 'Status labels should be plain enough for the whole team to understand without training.',
+      },
+      {
+        heading: 'Reduce chasing',
+        points: [
+          'Send reminders only to the current approver',
+          'Show pending items by owner',
+          'Keep comments attached to the document',
+          'Create a final read-only record after approval',
+        ],
+        text: 'The goal is fewer messages asking where the document is.',
+      },
+    ],
+    cta: { label: 'Browse document tools', to: '/tools' },
+    intro:
+      'Document approval tracking helps teams avoid missing files, unclear ownership, and repeated follow-up messages.',
+    relatedTools: [
+      ['Invoice Generator', '/invoice-generator'],
+      ['Quote Generator', '/quote-generator'],
+      ['Purchase Order Generator', '/purchase-order-generator'],
+    ],
+    slug: 'track-document-approval-status',
+    title: 'How to track document approval status',
+  },
+  {
+    body: [
+      {
+        heading: 'Why onboarding needs a checklist',
+        text: 'Client onboarding sets the tone for the relationship. A checklist keeps contracts, billing details, project goals, contacts, and kickoff tasks from scattering across messages.',
+      },
+      {
+        heading: 'Checklist sections',
+        points: [
+          'Client profile and contact people',
+          'Scope, goals, timeline, and success criteria',
+          'Billing details, tax details, and payment terms',
+          'Required files, access, brand assets, or approvals',
+        ],
+        text: 'Group fields by decision area so the client can complete the form without jumping around.',
+      },
+      {
+        heading: 'Good onboarding habits',
+        points: [
+          'Confirm what has been received',
+          'Show what is still missing',
+          'Use the same checklist for every new client',
+          'Turn approved scope into a quote or invoice',
+        ],
+        text: 'Consistency makes a small team look more professional and reduces project delays.',
+      },
+    ],
+    cta: { label: 'Open onboarding template', to: '/templates/client-intake-form' },
+    intro:
+      'A client onboarding checklist helps agencies, consultants, and service businesses collect what they need before work begins.',
+    relatedTools: [
+      ['Quote Generator', '/quote-generator'],
+      ['Invoice Generator', '/invoice-generator'],
+      ['Client Intake Template', '/templates/client-intake-form'],
+    ],
+    slug: 'client-onboarding-checklist',
+    title: 'Client onboarding checklist',
+  },
+  {
+    body: [
+      {
+        heading: 'Why expense approvals need structure',
+        text: 'Expense approvals are small individually, but they can create cash leakage when receipts, reasons, categories, and limits are inconsistent.',
+      },
+      {
+        heading: 'Required details',
+        points: [
+          'Employee or requester name',
+          'Expense date, category, amount, and currency',
+          'Business reason and client or project code',
+          'Receipt or supporting file',
+        ],
+        text: 'The cleaner the request, the faster finance can review and reimburse it.',
+      },
+      {
+        heading: 'Before reimbursement',
+        points: [
+          'Check that the receipt matches the amount',
+          'Confirm the expense was business-related',
+          'Verify duplicate claims',
+          'Record payment date and method',
+        ],
+        text: 'A short final check protects both the employee and the business record.',
+      },
+    ],
+    cta: { label: 'Open expense template', to: '/templates/expense-approval-form' },
+    intro:
+      'An expense approval form gives small teams a cleaner way to review receipts and reimbursements.',
+    relatedTools: [
+      ['Cash Flow Calculator', '/cash-flow-calculator'],
+      ['Payment Fee Calculator', '/payment-fee-calculator'],
+      ['Expense Template', '/templates/expense-approval-form'],
+    ],
+    slug: 'expense-approval-form-guide',
+    title: 'Expense approval form guide',
+  },
+  {
+    body: [
+      {
+        heading: 'Why complaints need a workflow',
+        text: 'Customer complaints can reveal product, delivery, billing, or service issues. A workflow helps the team capture facts, assign ownership, and close the loop.',
+      },
+      {
+        heading: 'What to capture',
+        points: [
+          'Customer name and contact details',
+          'Order, invoice, or receipt reference',
+          'Complaint category and description',
+          'Photos, files, or screenshots',
+          'Preferred resolution and urgency',
+        ],
+        text: 'Good complaint intake separates emotion from evidence while still making the customer feel heard.',
+      },
+      {
+        heading: 'Use complaints to improve',
+        points: [
+          'Track repeated suppliers, products, branches, or service types',
+          'Tag complaints by root cause',
+          'Measure time to first response and time to close',
+          'Review high-frequency issues monthly',
+        ],
+        text: 'The workflow should show where the business is leaking trust.',
+      },
+    ],
+    cta: { label: 'Open complaint template', to: '/templates/customer-complaint-form' },
+    intro:
+      'A customer complaint tracking form helps small businesses respond faster and learn from recurring issues.',
+    relatedTools: [
+      ['Receipt Maker', '/receipt-maker'],
+      ['Invoice Generator', '/invoice-generator'],
+      ['Complaint Template', '/templates/customer-complaint-form'],
+    ],
+    slug: 'customer-complaint-tracking-form',
+    title: 'Customer complaint tracking form',
+  },
+]
+
+const templatePages: TemplatePageData[] = [
+  {
+    commonMistakes: [
+      'Asking for too much information before the client understands the process.',
+      'Leaving out budget, deadline, and decision-maker fields.',
+      'Collecting files but not assigning the next follow-up owner.',
+    ],
+    fields: [
+      'Client name, company, email, phone, and preferred contact method',
+      'Project or request type',
+      'Goal, deadline, budget range, and priority',
+      'Reference links, files, or notes',
+      'Billing contact and approval contact',
+    ],
+    intro:
+      'Use this template to qualify new client requests before preparing a quote, schedule, or proposal.',
+    process: [
+      'Client submits the intake form.',
+      'Sales or operations reviews the request.',
+      'The team asks for missing details if needed.',
+      'A quote, kickoff checklist, or follow-up task is created.',
+    ],
+    slug: 'client-intake-form',
+    title: 'Client intake form template',
+    whoUsesIt:
+      'Agencies, consultants, print shops, contractors, studios, and service businesses that receive custom client requests.',
+  },
+  {
+    commonMistakes: [
+      'Approving purchases without a quote or supporting reason.',
+      'Not separating requester, approver, and purchasing owner.',
+      'Forgetting shipping, tax, and required delivery date.',
+    ],
+    fields: [
+      'Requester name, department, and project',
+      'Supplier name and contact person',
+      'Item description, quantity, unit cost, shipping, and tax',
+      'Reason for purchase and required date',
+      'Quote attachment and approval notes',
+    ],
+    intro:
+      'Use this template when an employee or department needs approval before buying goods or services.',
+    process: [
+      'Requester submits purchase details and attachments.',
+      'Manager approves need and budget.',
+      'Finance confirms cash and payment terms.',
+      'Purchasing issues a purchase order.',
+    ],
+    slug: 'purchase-request-form',
+    title: 'Purchase request form template',
+    whoUsesIt:
+      'Operations teams, restaurants, distributors, offices, agencies, and importers managing internal spending.',
+  },
+  {
+    commonMistakes: [
+      'Collecting supplier details only in email threads.',
+      'Approving vendors without checking documents or contacts.',
+      'Not recording certificate expiry dates.',
+    ],
+    fields: [
+      'Registered business name, trade name, and address',
+      'Primary, billing, and logistics contact details',
+      'Tax ID, payment terms, currency, and bank instructions',
+      'Product categories, lead time, and minimum order quantity',
+      'Certificates, business registration, and compliance documents',
+    ],
+    intro:
+      'Use this template to onboard suppliers before issuing purchase orders or sharing customer requirements.',
+    process: [
+      'Supplier completes business and document fields.',
+      'Purchasing reviews commercial details.',
+      'Finance verifies payment and tax information.',
+      'Management approves supplier activation.',
+    ],
+    slug: 'supplier-registration-form',
+    title: 'Supplier registration form template',
+    whoUsesIt:
+      'Importers, distributors, exporters, food businesses, restaurants, procurement teams, and product companies.',
+  },
+  {
+    commonMistakes: [
+      'Missing receipts or proof of payment.',
+      'Using vague categories that finance cannot analyze.',
+      'Approving reimbursements without checking duplicates.',
+    ],
+    fields: [
+      'Employee or requester name',
+      'Expense date, category, amount, currency, and merchant',
+      'Business purpose and project or client',
+      'Receipt attachment',
+      'Approver decision and reimbursement date',
+    ],
+    intro:
+      'Use this template to review employee or contractor expenses before reimbursement.',
+    process: [
+      'Requester submits the expense and receipt.',
+      'Manager reviews the business purpose.',
+      'Finance checks policy and duplicates.',
+      'Approved expenses are reimbursed and recorded.',
+    ],
+    slug: 'expense-approval-form',
+    title: 'Expense approval form template',
+    whoUsesIt:
+      'Small businesses, agencies, field teams, finance teams, and operations groups with reimbursable expenses.',
+  },
+  {
+    commonMistakes: [
+      'Not linking the complaint to an order, invoice, or receipt.',
+      'Letting complaints sit without an owner.',
+      'Resolving the issue without recording the root cause.',
+    ],
+    fields: [
+      'Customer name, contact details, and preferred response channel',
+      'Order, invoice, receipt, or job reference',
+      'Complaint category, description, and urgency',
+      'Photos, files, or screenshots',
+      'Assigned owner, resolution, and close date',
+    ],
+    intro:
+      'Use this template to capture customer complaints and track resolution from intake to closure.',
+    process: [
+      'Customer or staff member submits the issue.',
+      'Support assigns an owner and priority.',
+      'The owner investigates and proposes a resolution.',
+      'The customer is updated and the case is closed.',
+    ],
+    slug: 'customer-complaint-form',
+    title: 'Customer complaint form template',
+    whoUsesIt:
+      'Retailers, restaurants, service businesses, distributors, ecommerce sellers, and support teams.',
+  },
+  {
+    commonMistakes: [
+      'Approving leave without checking staffing conflicts.',
+      'Not recording half-days, holidays, or unpaid leave clearly.',
+      'Forgetting payroll or attendance updates.',
+    ],
+    fields: [
+      'Employee name, department, and manager',
+      'Leave type, start date, end date, and total working days',
+      'Reason or handover notes',
+      'Backup person during absence',
+      'Manager approval and HR confirmation',
+    ],
+    intro:
+      'Use this template to standardize vacation, sick leave, emergency leave, and other time-off requests.',
+    process: [
+      'Employee submits leave details.',
+      'Manager checks staffing impact.',
+      'HR or payroll records the approved leave.',
+      'Employee receives confirmation.',
+    ],
+    slug: 'leave-request-form',
+    title: 'Leave request form template',
+    whoUsesIt:
+      'Small companies, HR teams, restaurant groups, operations teams, agencies, and offices with scheduled staff.',
+  },
+  {
+    commonMistakes: [
+      'Starting work without a job number or approved scope.',
+      'Missing client files, specifications, or delivery date.',
+      'Not recording who accepted the job internally.',
+    ],
+    fields: [
+      'Job number, requester, client, and contact details',
+      'Scope of work, specifications, quantity, and due date',
+      'Required files, artwork, materials, or references',
+      'Assigned team, priority, and status',
+      'Completion notes and delivery confirmation',
+    ],
+    intro:
+      'Use this template to turn client or internal work requests into trackable job orders.',
+    process: [
+      'Requester submits job details.',
+      'Operations checks scope and required files.',
+      'A team member is assigned.',
+      'The job moves through production, review, and completion.',
+    ],
+    slug: 'job-order-request-form',
+    title: 'Job order request form template',
+    whoUsesIt:
+      'Print shops, production teams, agencies, workshops, installation teams, and custom product businesses.',
+  },
+  {
+    commonMistakes: [
+      'Accepting maintenance issues through chat with no record.',
+      'Not separating urgent safety issues from routine requests.',
+      'Closing requests without noting parts, labor, or final status.',
+    ],
+    fields: [
+      'Requester name, site, department, and contact details',
+      'Issue category, location, and description',
+      'Urgency, safety impact, and photos',
+      'Assigned technician or vendor',
+      'Resolution notes, parts used, and completion date',
+    ],
+    intro:
+      'Use this template to record maintenance requests and track repairs from report to completion.',
+    process: [
+      'Requester reports the issue.',
+      'Operations assigns priority and owner.',
+      'Technician or vendor completes the work.',
+      'The requester confirms closure.',
+    ],
+    slug: 'maintenance-request-form',
+    title: 'Maintenance request form template',
+    whoUsesIt:
+      'Offices, property teams, restaurants, warehouses, schools, clinics, and facility managers.',
   },
 ]
 
@@ -1265,10 +1902,15 @@ function App() {
         <Route path="/sales-tax-calculator" element={<SalesTaxCalculator />} />
         <Route path="/service-charge-calculator" element={<ServiceChargeCalculator />} />
         <Route path="/vat-calculator" element={<VatCalculator />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/privacy" element={<PolicyPage type="privacy" />} />
+        <Route path="/privacy-policy" element={<PolicyPage type="privacy" />} />
         <Route path="/terms" element={<PolicyPage type="terms" />} />
+        <Route path="/terms-of-service" element={<PolicyPage type="terms" />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/resources" element={<ResourcesPage />} />
+        <Route path="/templates/:templateSlug" element={<TemplatePage />} />
         <Route path="/tools" element={<ToolsDirectoryPage />} />
         <Route path="/guides/:guideSlug" element={<GuidePage />} />
       </Routes>
@@ -1281,9 +1923,7 @@ function Header() {
   const location = useLocation()
 
   useEffect(() => {
-    const title = routeTitles[location.pathname] ?? routeTitles['/']
-    const description =
-      routeDescriptions[location.pathname] ?? routeDescriptions['/']
+    const { description, title } = getRouteMeta(location.pathname)
     const canonical = `${siteOrigin}${location.pathname}`
 
     globalThis.document.title = title
@@ -1326,6 +1966,7 @@ function Header() {
         <NavLink to="/payment-fee-calculator">Fees</NavLink>
         <NavLink to="/sales-tax-calculator">Tax</NavLink>
         <NavLink to="/tools">Tools</NavLink>
+        <NavLink to="/resources">Resources</NavLink>
         <NavLink to="/pricing">Pricing</NavLink>
       </nav>
       <Link className="topbar-action" to="/pricing">
@@ -1378,9 +2019,13 @@ function Footer() {
         <Link to="/privacy">Privacy</Link>
         <Link to="/terms">Terms</Link>
         <Link to="/contact">Contact</Link>
+        <Link to="/about">About</Link>
+        <Link to="/resources">Resources</Link>
         <Link to="/tools">All tools</Link>
         <Link to="/guides/how-to-create-an-invoice">Invoice guide</Link>
         <Link to="/guides/profit-margin-vs-markup">Margin guide</Link>
+        <Link to="/templates/client-intake-form">Client intake template</Link>
+        <Link to="/templates/supplier-registration-form">Supplier template</Link>
       </nav>
     </footer>
   )
@@ -1411,6 +2056,7 @@ function HomePage() {
       </section>
       <SeoSection />
       <GuidePreview />
+      <ResourcePreview />
       <ToolPortfolio />
       <LegalTeaser />
     </>
@@ -1449,6 +2095,7 @@ function ToolsDirectoryPage() {
       </section>
       <SeoSection />
       <GuidePreview />
+      <ResourcePreview />
     </>
   )
 }
@@ -3320,6 +3967,196 @@ function GuidePage() {
 
       <GuidePreview />
     </>
+  )
+}
+
+function ResourcePreview() {
+  return (
+    <section className="resource-preview" id="resources">
+      <div className="content-intro">
+        <h2>Form templates and workflows</h2>
+        <p>
+          Ready-to-adapt templates for intake, purchasing, supplier onboarding,
+          expense approvals, leave requests, complaints, job orders, and
+          maintenance tracking.
+        </p>
+      </div>
+      <div className="template-card-grid">
+        {templatePages.slice(0, 6).map((template) => (
+          <Link key={template.slug} to={`/templates/${template.slug}`}>
+            <span>Template</span>
+            <strong>{template.title}</strong>
+            <small>{template.intro}</small>
+          </Link>
+        ))}
+      </div>
+      <Link className="secondary-link inline-resource-link" to="/resources">
+        View all resources
+      </Link>
+    </section>
+  )
+}
+
+function ResourcesPage() {
+  return (
+    <>
+      <section className="hero calculator-hero">
+        <div className="hero-copy">
+          <h1>Small business resources</h1>
+          <p>
+            Practical guides and templates for service businesses, importers,
+            distributors, agencies, restaurants, and operations teams that need
+            cleaner documents and approvals.
+          </p>
+        </div>
+        <RevenuePanel />
+      </section>
+      <section className="resource-index">
+        <div className="content-intro">
+          <h2>Guides</h2>
+          <p>
+            Use these explainers to design better forms, billing documents,
+            approval workflows, and pricing habits.
+          </p>
+        </div>
+        <div className="guide-card-grid">
+          {guidePages.map((guide) => (
+            <Link key={guide.slug} to={`/guides/${guide.slug}`}>
+              <span>Guide</span>
+              <strong>{guide.title}</strong>
+              <small>{guide.intro}</small>
+            </Link>
+          ))}
+        </div>
+      </section>
+      <section className="resource-index">
+        <div className="content-intro">
+          <h2>Templates</h2>
+          <p>
+            Each template lists recommended fields, workflow steps, and common
+            mistakes to avoid before you build the form.
+          </p>
+        </div>
+        <div className="template-card-grid">
+          {templatePages.map((template) => (
+            <Link key={template.slug} to={`/templates/${template.slug}`}>
+              <span>Template</span>
+              <strong>{template.title}</strong>
+              <small>{template.intro}</small>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </>
+  )
+}
+
+function TemplatePage() {
+  const { templateSlug } = useParams()
+  const template =
+    templatePages.find((item) => item.slug === templateSlug) ??
+    templatePages[0]
+
+  return (
+    <>
+      <section className="hero calculator-hero guide-hero">
+        <div className="hero-copy">
+          <span className="eyebrow">Business form template</span>
+          <h1>{template.title}</h1>
+          <p>{template.intro}</p>
+          <div className="hero-actions">
+            <Link className="primary-link" to="/resources">
+              <FileText size={18} />
+              Browse resources
+            </Link>
+            <Link className="secondary-link" to="/tools">
+              Browse tools
+            </Link>
+          </div>
+        </div>
+        <RevenuePanel />
+      </section>
+
+      <section className="template-page">
+        <article>
+          <h2>Who uses it</h2>
+          <p>{template.whoUsesIt}</p>
+        </article>
+        <article>
+          <h2>Fields to include</h2>
+          <ul>
+            {template.fields.map((field) => (
+              <li key={field}>{field}</li>
+            ))}
+          </ul>
+        </article>
+        <article>
+          <h2>Suggested workflow</h2>
+          <ol>
+            {template.process.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        </article>
+        <article>
+          <h2>Common mistakes</h2>
+          <ul>
+            {template.commonMistakes.map((mistake) => (
+              <li key={mistake}>{mistake}</li>
+            ))}
+          </ul>
+        </article>
+      </section>
+
+      <ResourcePreview />
+    </>
+  )
+}
+
+function AboutPage() {
+  return (
+    <section className="legal-page">
+      <h1>About BizFormFlow</h1>
+      <p>
+        BizFormFlow helps small business owners prepare everyday documents,
+        pricing checks, and approval workflows without needing a large software
+        stack.
+      </p>
+      <div className="legal-grid">
+        <article>
+          <h2>Who it is for</h2>
+          <p>
+            The tools are built for freelancers, service businesses, importers,
+            distributors, agencies, restaurants, and small operations teams that
+            need fast business documents and practical form templates.
+          </p>
+        </article>
+        <article>
+          <h2>What it solves</h2>
+          <p>
+            Small teams often lose time to repeated spreadsheets, messy email
+            approvals, unclear quotes, and incomplete billing records.
+            BizFormFlow gives them simple tools and examples they can use
+            immediately.
+          </p>
+        </article>
+        <article>
+          <h2>How it works</h2>
+          <p>
+            Public tools run in the browser, drafts stay local on the device,
+            and resources explain how to structure common business workflows
+            before turning them into forms.
+          </p>
+        </article>
+        <article>
+          <h2>Contact</h2>
+          <p>
+            For support, corrections, partnerships, or template requests, email{' '}
+            <a href={`mailto:${supportEmail}`}>{supportEmail}</a>.
+          </p>
+        </article>
+      </div>
+    </section>
   )
 }
 
